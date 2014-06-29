@@ -44,6 +44,7 @@ public class Media extends BaseModel {
 	
 	@Transient
 	public File file;
+
 	
 	public static String GROUP = "group";
 	
