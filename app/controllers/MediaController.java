@@ -41,7 +41,7 @@ public class MediaController extends BaseController {
 			if (media == null) {
 				return redirect(controllers.routes.Application.index());
 			} else {
-				response().setHeader("Content-disposition","attachment; filename=\"" + media.fileName + "\"");
+				response().setHeader("Content-disposition","attachment; filename=\""+ media.fileName + "\"");
 				return ok(media.file);
 			}
     	} else {
@@ -49,6 +49,29 @@ public class MediaController extends BaseController {
     		return redirect(controllers.routes.Application.index());
      	}
     }
+
+	public static String glyph(Long id){
+		Media m = Media.findById(id);
+		String glyphicon = "glyphicon-file";
+		String mime = m.mimetype;
+		if(mime.startsWith("text"))
+		{
+			glyphicon = "glyphicon-align-justify";
+		}
+		if(mime.startsWith("image"))
+		{
+			glyphicon = "glyphicon-picture";
+		}
+		if(mime.startsWith("video"))
+		{
+			glyphicon = "glyphicon-film";
+		}
+		if(mime.startsWith("audio"))
+		{
+			glyphicon = "glyphicon-music";
+		}
+		return glyphicon;
+	}
     
     @Transactional
     public static Result delete(Long id) {
@@ -260,7 +283,6 @@ public class MediaController extends BaseController {
 						flash("error", error);
 						return redirect(ret);
 					}
-					
 				} 				
 				mediaList.add(med);
 			}

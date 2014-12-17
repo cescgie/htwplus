@@ -4,14 +4,14 @@
 
 <h4>Neue Dateien hochladen <div class="loading" id="loadingMedia"></div></h4>
 
-@form(action = routes.MediaController.upload(target, id), 'enctype -> "multipart/form-data", 'id -> "fileuploadForm") {
+@form(action = routes.MediaController.upload(target, id), 'class -> "dropzone", 'enctype -> "multipart/form-data", 'id -> "fileuploadForm") {
 <div class="form-group">
 	<div class="row">
 		<div class="col-xs-12">
 			<div class="prettyFile input-group">
 				<input type="file" name="form[files][]" multiple="multiple">
-				<div class="input-group" rel="tooltip" data-original-title="Hier klicken, um Dateien auszuwählen!" data-placement="bottom" data-delay="500" data-container="body">
-					<input class="form-control" type="text" placeholder="Dateien zum Hochladen">
+				<div class="input-group" rel="tooltip" data-original-title="Hier Dateien hochladen!" data-placement="bottom" data-delay="500" data-container="body">
+					<input class="form-control" type="text" name="file" placeholder="Anklicken oder Hineinziehen um Dateien hochzuladen" multiple>
 					<span class="input-group-btn">
 						<button type="button" class="btn btn-warning" onclick="mediaUpload();">Senden</button>
 					</span>

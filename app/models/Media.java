@@ -150,8 +150,11 @@ public class Media extends BaseModel {
 	}
 	
 	public boolean belongsToGroup(){
-		if(this.group != null) return true;
-		return false;
+		if(this.group != null){
+			return true;
+		}else {
+			return false;
+		}
 	}
 		
 }
