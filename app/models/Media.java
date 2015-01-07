@@ -24,6 +24,9 @@ public class Media extends BaseNotifiable implements INotifiable {
 
 	@Required
 	public String title;
+
+	@ManyToOne
+	public Folder inFolder;
 	
 	@Required
 	public String fileName;

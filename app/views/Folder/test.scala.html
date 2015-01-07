@@ -1,0 +1,20 @@
+@(testString: String)
+@main("test") {
+
+    <h1>
+        <p>
+        @testString
+        </p>
+    </h1>
+
+
+    <div>
+        <a class="btn success" href="@routes.Application.index()">index</a>
+        @*<a class="btn success" href="@routes.FolderController.createMedia()">createMedia</a>*@
+        @*<a class="btn success" href="@routes.FolderController.listMediaInFolder()">Folder</a>*@
+        @*<a class="btn success" href="@routes.FolderController.createMoreMedia()">createMoreMedia</a>*@
+
+    </div>
+
+
+}

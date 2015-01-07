@@ -1,0 +1,24 @@
+@(path: List[Folder], folder: Folder)
+@main("Folder") {
+ 
+
+        <p>
+            @for(p <- path) {
+                <a href="@routes.FolderController.listFolder(p.id)">@p.name</a> /
+            }
+            <br><br>
+            @for(f <- folder.childs) {
+                <a href="@routes.FolderController.listFolder(f.id)">@f.toAlternateString()</a><br>
+            }
+        @for(m <- folder.files) {
+            @m.toString() <br>
+        }
+        </p>
+
+    <div>
+        <a class="btn success" href="@routes.Application.index()">index</a>
+        <a class="btn success" href="@routes.FolderController.createMedia(folder.id)">createMedia</a>
+        <a class="btn success" href="@routes.FolderController.createFolder(folder.id)">createFolder</a>
+    </div>
+
+}

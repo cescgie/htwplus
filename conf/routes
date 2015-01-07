@@ -26,6 +26,7 @@ GET		/group/create						controllers.GroupController.create()
 GET		/group/:id/stream					controllers.GroupController.view(id:Long, page: Integer ?= 1)
 GET		/group/:id							controllers.GroupController.view(id:Long, page: Integer ?= 1)
 GET		/group/:id/media					controllers.GroupController.media(id:Long)
+#GET		/group/:id/media/:folderId			controllers.GroupController.media(id:Long, folderId: Long)
 GET		/group/:id/edit						controllers.GroupController.edit(id:Long)
 POST	/group/:id/update					controllers.GroupController.update(id:Long)
 GET		/group/:id/delete					controllers.GroupController.delete(id:Long)
@@ -72,6 +73,13 @@ POST 	/media/:target/upload/:id			controllers.MediaController.upload(target:Stri
 POST	/media/multiple/:target/:id			controllers.MediaController.multiView(target:String,id:Long)
 GET		/media/:id							controllers.MediaController.view(id:Long)
 GET 	/media/:id/delete					controllers.MediaController.delete(id:Long)
+
+# Folder (Project)
+GET    /folder/:id                    controllers.FolderController.listFolder(id:Long)
+GET    /folder/:id/createMedia        controllers.FolderController.createMedia(id:Long)
+GET    /folder/:id/createFolder       controllers.FolderController.createFolder(id:Long)
+
+
 
 #Notification
 GET     /notification                       controllers.NotificationController.showAll(page: Integer ?= 1)
