@@ -4,12 +4,14 @@ import com.fasterxml.jackson.databind.deser.Deserializers;
 import models.Folder;
 import models.Group;
 import models.Media;
+import play.Logger;
 import play.db.jpa.JPA;
 import play.db.jpa.Transactional;
 import play.mvc.Controller;
 import play.mvc.Result;
 import views.html.main;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,11 +81,36 @@ public class FolderController extends Controller {
 		return ok(folder.toAlternateString());
 	//	return ok(folder.render(path,folder));
 	}
+
+    @Transactional
+    public static Result listFolder2(Long groupID,Long folderID) {
+        Folder f = Folder.findById(folderID);
+        Folder folder = f;
+        List<Folder> path = new ArrayList<Folder>();
+        List<Folder> pathTemp = new ArrayList<Folder>();
+        Folder groupFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, groupID).getSingleResult();
+        if (f == null) {
+            Logger.debug("No Folder Found. Back to groupFolder");
+            return redirectGroupFolder(groupID, groupFolder.id);
+        }
+        while (f.depth > 1) {
+            pathTemp.add(f);
+            f = f.parent;
+        }
+        for (int i = pathTemp.size()-1; i >= 0; i--)
+            path.add(pathTemp.get(i));
+        //	return ok(folder.render(path,folder));
+        return ok(folderContentToString(path,folder));
+    }
     
 
     public static Result redirectFolder(Long folderID) {
 		return redirect("/folder/" + folderID);
 	}
+
+    public static Result redirectGroupFolder(Long groupID, Long folderID) {
+        return redirect("/group/" + groupID + "/media/" + folderID);
+    }
 
 	public static Result redirectFolderError(String error) {
 		return ok("NOT OKAY");
@@ -104,6 +131,21 @@ public class FolderController extends Controller {
 
         FolderController.createFolder("Ordner xyz", folderID);
         return redirectFolder(folderID);
+    }
+
+    private static String folderContentToString(List<Folder> path, Folder folder) {
+        String ret = "";
+        for (Folder f:path)
+            ret = ret + f.name + " /";
+        ret += "\n\n";
+        List<Folder> childs = folder.childs;
+        List<Media> files = folder.files;
+        int file = 1;
+        for (Folder f: childs)
+            ret = ret + f.toAlternateString() + "\n";
+        ret += "\n\n";
+            ret = ret + "Files: " + files.size() + "\n";
+        return ret;
     }
 
 

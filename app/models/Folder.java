@@ -14,7 +14,7 @@ import java.util.List;
         @NamedQuery(name = Folder.QUERY_FETCH_ALL, query = "SELECT f FROM Folder f ORDER BY f.name"),
         @NamedQuery(name = Folder.QUERY_FIND_ROOT, query = "SELECT f FROM Folder f, Group WHERE f.depth = 0 AND f.parent IS NULL"),
         @NamedQuery(name = Folder.QUERY_FIND_ALL_GROUPFOLDER, query = "SELECT f FROM Folder f, Group WHERE f.depth = 0"),
-        @NamedQuery(name = Folder.QUERY_FIND_ROOT_OF_GROUP, query = "SELECT f FROM Folder f, Group g WHERE f.depth = 1 and g.id = :" + Folder.PARAM_GROUP_ID)
+        @NamedQuery(name = Folder.QUERY_FIND_ROOT_OF_GROUP, query = "SELECT f FROM Folder f WHERE f.depth = 1 and f.group.id = :" + Folder.PARAM_GROUP_ID)
 })
 public class Folder extends BaseModel{
 

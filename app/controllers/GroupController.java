@@ -76,7 +76,7 @@ public class GroupController extends BaseController {
 		
 
 		List<Folder> list1 = JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, group.id).getResultList();
-		Logger.debug("List of Group size: " + list1.size());
+		Logger.debug("List of Group size: " + list1.size() + "(GroupID:" + group.id +")");
 		
 		for(Folder f : list1) {
 			Logger.debug("Folder:  " + f.toAlternateString());
