@@ -4,11 +4,11 @@
 
         <p>
             @for(p <- path) {
-                <a href="@routes.FolderController.listFolder(p.id)">@p.name</a> /
+                <a href="@routes.FolderController.listFolder(p.group.id, p.id)">@p.name</a> /
             }
             <br><br>
             @for(f <- folder.childs) {
-                <a href="@routes.FolderController.listFolder(f.id)">@f.toAlternateString()</a><br>
+                <a href="@routes.FolderController.listFolder(f.group.id, f.id)">@f.toAlternateString()</a><br>
             }
         @for(m <- folder.files) {
             @m.toString() <br>
@@ -18,7 +18,7 @@
     <div>
         <a class="btn success" href="@routes.Application.index()">index</a>
         <a class="btn success" href="@routes.FolderController.createMedia(folder.id)">createMedia</a>
-        <a class="btn success" href="@routes.FolderController.createFolder(folder.id)">createFolder</a>
+        <a class="btn success" href="@routes.FolderController.createFolder(folder.group.id,folder.id,"Ordnerxyz")">createFolder</a>
     </div>
 
 }

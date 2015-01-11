@@ -46,7 +46,6 @@ public class GroupController extends BaseController {
 		
 	@Transactional(readOnly=true)
 	public static Result view(Long id, int page) {
-		
 
 		Logger.debug("ID von " + id);
 		
@@ -66,13 +65,9 @@ public class GroupController extends BaseController {
 		} else {
 			f0 = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT).getSingleResult();
 		}
-		
-		
-		
-		
+
 		Logger.info("Show group with id: " +id);
 		Group group = Group.findById(id);
-		
 		
 
 		List<Folder> list1 = JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, group.id).getResultList();
