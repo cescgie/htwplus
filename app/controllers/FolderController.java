@@ -9,6 +9,7 @@ import play.db.jpa.JPA;
 import play.db.jpa.Transactional;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.mvc.Security;
 import views.html.main;
 
 import java.io.File;
@@ -18,7 +19,8 @@ import java.util.List;
 /**
  * Created by meichris on 06.12.14.
  */
-public class FolderController extends Controller {
+@Security.Authenticated(Secured.class)
+public class FolderController extends BaseController {
 
 
     public static Long createFolder(String argName, Long argParentId) {
@@ -84,23 +86,29 @@ public class FolderController extends Controller {
 
     @Transactional
     public static Result listFolder2(Long groupID,Long folderID) {
-        Folder f = Folder.findById(folderID);
-        Folder folder = f;
-        List<Folder> path = new ArrayList<Folder>();
-        List<Folder> pathTemp = new ArrayList<Folder>();
-        Folder groupFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, groupID).getSingleResult();
-        if (f == null) {
-            Logger.debug("No Folder Found. Back to groupFolder");
-            return redirectGroupFolder(groupID, groupFolder.id);
+        Folder folder = Folder.findById(folderID);
+        if(Secured.viewFolder(folder)) {
+            Folder folderTemp = folder;
+            List<Folder> path = new ArrayList<Folder>();
+            List<Folder> pathTemp = new ArrayList<Folder>();
+            Folder groupFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, groupID).getSingleResult();
+            if (folder == null || groupID != folder.group.id) {
+                Logger.debug("No Folder Found. Back to groupFolder");
+                return redirectGroupFolder(groupID, groupFolder.id);
+            }
+            while (folderTemp.depth > 0) {
+                pathTemp.add(folderTemp);
+                folderTemp = folderTemp.parent;
+            }
+            for (int i = pathTemp.size()-1; i >= 0; i--)
+                path.add(pathTemp.get(i));
+            //	return ok(folder.render(path,folder));
+            return ok(folderContentToString(path,folder));
+        } else {
+            flash("error", "Dazu hast du keine Berechtigung!");
+            return redirect(controllers.routes.Application.index());
         }
-        while (f.depth > 1) {
-            pathTemp.add(f);
-            f = f.parent;
-        }
-        for (int i = pathTemp.size()-1; i >= 0; i--)
-            path.add(pathTemp.get(i));
-        //	return ok(folder.render(path,folder));
-        return ok(folderContentToString(path,folder));
+
     }
     
 
@@ -136,7 +144,7 @@ public class FolderController extends Controller {
     private static String folderContentToString(List<Folder> path, Folder folder) {
         String ret = "";
         for (Folder f:path)
-            ret = ret + f.name + " /";
+            ret = ret + f.name + "/";
         ret += "\n\n";
         List<Folder> childs = folder.childs;
         List<Media> files = folder.files;

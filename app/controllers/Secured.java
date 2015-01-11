@@ -454,4 +454,14 @@ public class Secured extends Security.Authenticator {
 	public static boolean hasAccessToNotification(Notification notification) {
 		return notification.recipient.equals(Component.currentAccount());
 	}
+
+	/**
+	 * Returns true, if the currently logged in account is allowed to view a specific folder.
+	 *
+	 * @param folder Folder to view
+	 * @return True, if logged in account is allowed to view folder
+	 */
+	public static boolean viewFolder(Folder folder) {
+		return folder != null && Secured.viewGroup(folder.group);
+	}
 }
