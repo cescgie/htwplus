@@ -104,8 +104,7 @@ public class GroupController extends BaseController {
 			Navigation.set(Level.GROUPS, "Newsstream", group.title, controllers.routes.GroupController.view(group.id, PAGE));
 			Logger.info("Found group with id: " +id);
 			List<Post> posts = Post.getPostsForGroup(group, LIMIT, page);
-//			return ok(view.render(group, posts, postForm, Post.countPostsForGroup(group), LIMIT, page));
-			return redirect(controllers.routes.FolderController.listFolder(group.id,groupFolder.id));			// Für einfachere Navigation sofort im GroupOrdner
+			return ok(view.render(group, posts, postForm, Post.countPostsForGroup(group), LIMIT, page));
 		}
 	}
 	
@@ -113,6 +112,7 @@ public class GroupController extends BaseController {
 	public static Result media(Long id) {
 		Form<Media> mediaForm = Form.form(Media.class);
 		Group group = Group.findById(id);
+		Folder groupFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, group.id).getSingleResult();
 		
 		if(!Secured.viewGroup(group)){
 			return redirect(controllers.routes.Application.index());
@@ -123,7 +123,8 @@ public class GroupController extends BaseController {
 		} else {
 			Navigation.set(Level.GROUPS, "Media", group.title, controllers.routes.GroupController.view(group.id, PAGE));
 			List<Media> mediaSet = group.media; 
-			return ok(media.render(group, mediaForm, mediaSet));
+//			return ok(media.render(group, mediaForm, mediaSet));
+			return redirect(controllers.routes.FolderController.listFolder(group.id,groupFolder.id));			// Für einfachere Navigation sofort im GroupOrdner
 		}
 	}
 	
