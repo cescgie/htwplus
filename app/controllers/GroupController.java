@@ -52,18 +52,19 @@ public class GroupController extends BaseController {
 		List<Folder> list = JPA.em().createNamedQuery(Folder.QUERY_FETCH_ALL).getResultList();
 		Logger.debug("List: " + list.size());
 		
-		Folder f0 = null;
+		Folder rootFolder = null;
+		Folder groupFolder = null;
 		if (list.isEmpty()) {
 			Logger.debug("Create Root Folder");
-			f0 = new Folder(); //FolderController.createFolder("root", null);
-			f0.name = "root";
-			f0.depth = 0;
-			f0.parent = null;
-			f0.group = null;
-			f0.create();
+			rootFolder = new Folder(); //FolderController.createFolder("root", null);
+			rootFolder.name = "root";
+			rootFolder.depth = 0;
+			rootFolder.parent = null;
+			rootFolder.group = null;
+			rootFolder.create();
 			Logger.debug("Create Root Folder - created");
 		} else {
-			f0 = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT).getSingleResult();
+			rootFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT).getSingleResult();
 		}
 
 		Logger.info("Show group with id: " +id);
@@ -80,13 +81,15 @@ public class GroupController extends BaseController {
 		
 		if (list1.isEmpty()) {
 			Logger.debug("Create root folder for group");
-			Folder f1 = new Folder(); //FolderController.createFolder("root", null);
-			f1.name = "rootOf"+group.title;
-			f1.depth = 1;
-			f1.parent = f0;
-			f1.group = group;
-			f1.create();
-			Logger.debug("Root Folder for group created with ID:" + f1.id);
+			groupFolder = new Folder(); //FolderController.createFolder("root", null);
+			groupFolder.name = "rootOf"+group.title;
+			groupFolder.depth = 1;
+			groupFolder.parent = rootFolder;
+			groupFolder.group = group;
+			groupFolder.create();
+			Logger.debug("Root Folder for group created with ID:" + groupFolder.id);
+		} else {
+			groupFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, group.id).getSingleResult();
 		}
 		
 		
@@ -101,7 +104,8 @@ public class GroupController extends BaseController {
 			Navigation.set(Level.GROUPS, "Newsstream", group.title, controllers.routes.GroupController.view(group.id, PAGE));
 			Logger.info("Found group with id: " +id);
 			List<Post> posts = Post.getPostsForGroup(group, LIMIT, page);
-			return ok(view.render(group, posts, postForm, Post.countPostsForGroup(group), LIMIT, page));
+//			return ok(view.render(group, posts, postForm, Post.countPostsForGroup(group), LIMIT, page));
+			return redirect(controllers.routes.FolderController.listFolder(group.id,groupFolder.id));			// Für einfachere Navigation sofort im GroupOrdner
 		}
 	}
 	

@@ -1,4 +1,5 @@
-@(path: List[Folder], folder: Folder)
+@(path: List[Folder], folder: Folder, folderForm: Form[Folder])
+@import helper._
 @main("viewFolder") {
 
 
@@ -8,15 +9,21 @@
         }
         <br><br>
         @for(f <- folder.childs) {
-            <a href="@routes.FolderController.listFolder(f.group.id, f.id)">@f.toAlternateString()</a><br>
+            <a href="@routes.FolderController.listFolder(f.group.id, f.id)">@f.toAlternateString()</a> <a class="button" href="@routes.FolderController.deleteFolder(f.group.id,f.id)">X</a> <br>
         }
-        @for(m <- folder.files) {
-            @m.toString() <br>
-            }
+        <br>
+        Files: @folder.files.size() <br><br>
     </p>
 
 
-    <div>
-        <a class="btn success" href="@routes.FolderController.createFolder(folder.group.id,folder.id,"Test1234556")">createFolder</a>
-    </div>
+    @form(routes.FolderController.createFolder(folder.group.id,folder.id)) {
+        <div>
+            @inputText(
+                folderForm("name"),
+                'class -> "form-input",
+                '_label -> "Ordner Name"
+            )
+            <button type="submit">Ordner erstellen</button>
+        </div>
+    }
 }

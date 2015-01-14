@@ -5,6 +5,7 @@ import models.Folder;
 import models.Group;
 import models.Media;
 import play.Logger;
+import play.data.Form;
 import play.db.jpa.JPA;
 import play.db.jpa.Transactional;
 import play.mvc.Controller;
@@ -17,14 +18,20 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static play.data.Form.form;
+
 /**
  * Created by meichris on 06.12.14.
  */
 @Security.Authenticated(Secured.class)
 public class FolderController extends BaseController {
 
-    public static Result createFolder(Long groupID, Long parentID, String name) {
+    final static Form<Folder> folderForm = form(Folder.class);
+
+    public static Result createFolder(Long groupID, Long parentID) {
         Folder parent = Folder.findById(parentID);
+        Form<Folder> filledForm = folderForm.bindFromRequest();
+        String name = filledForm.data().get("name");
         if(Secured.viewFolder(parent) && groupID == parent.group.id) {
             Folder folder = new Folder();
             if (allowToCreate(name,parentID)) {
@@ -60,9 +67,7 @@ public class FolderController extends BaseController {
         return allow;
     }
 
-
     ///// TO CHANGE
-
     @Transactional
     public static Result listFolder(Long groupID,Long folderID) {
         Folder folder = Folder.findById(folderID);
@@ -78,23 +83,28 @@ public class FolderController extends BaseController {
             for (int i = pathTemp.size()-1; i >= 0; i--)
                 path.add(pathTemp.get(i));
 
-//            return ok(folderContentToString(path,folder));
-            return ok(viewFolder.render(path,folder));
+            Logger.debug("show Folder with ID:" + folderID);
+            return ok(viewFolder.render(path, folder, folderForm));
         } else {
             flash("error", "Dazu hast du keine Berechtigung!");
             return redirect(controllers.routes.Application.index());
         }
     }
 
+    @Transactional
     public static Result deleteFolder(Long groupID,Long folderID) {
         Folder folder = Folder.findById(folderID);
+        Folder parent = folder.parent;
         Folder groupFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, groupID).getSingleResult();
-        if(Secured.viewFolder(folder) && groupID == folder.group.id) {
-
-            return listFolder(groupID, folderID);
+        if(Secured.deleteFolder(folder) && groupID == folder.group.id) {
+            Logger.debug("Delete Folder[" + folder.id + "]");
+            folder.delete();
+            Logger.debug("Folder[" + folder.id + "] deleted");
+            Logger.debug("-> list Folder[" + parent.id + "]");
+            return redirect(controllers.routes.FolderController.listFolder(groupID, parent.id));
         } else {
             flash("error", "Dazu hast du keine Berechtigung!");
-            return redirect(controllers.routes.Application.index());
+            return redirect(controllers.routes.FolderController.listFolder(groupID,parent.id));
         }
     }
 

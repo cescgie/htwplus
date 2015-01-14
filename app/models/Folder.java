@@ -38,10 +38,10 @@ public class Folder extends BaseModel{
     @ManyToOne
     public Group group;
 
-    @OneToMany(mappedBy = "inFolder")
+    @OneToMany(mappedBy = "inFolder", cascade=CascadeType.REMOVE)
     public List<Media> files;
 
-    @OneToMany(mappedBy = "parent")
+    @OneToMany(mappedBy = "parent", cascade=CascadeType.REMOVE)
     public List<Folder> childs;
 
     public static Folder findById(long id) {
