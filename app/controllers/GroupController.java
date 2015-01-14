@@ -86,7 +86,7 @@ public class GroupController extends BaseController {
 			f1.parent = f0;
 			f1.group = group;
 			f1.create();
-			Logger.debug("Root Folder for group created");
+			Logger.debug("Root Folder for group created with ID:" + f1.id);
 		}
 		
 		

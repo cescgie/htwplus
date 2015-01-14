@@ -11,6 +11,7 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
 import views.html.main;
+import views.html.Folder.*;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public class FolderController extends BaseController {
                 folder.create();
             } else {
                 flash("error", "Dazu hast du keine Berechtigung, ein Ordner mit diesem Namen existiert bereits!");
-                return redirect(controllers.routes.Application.index());
+                return redirectFolder(groupID, parentID);
             }
             return redirectFolder(parent.group.id,parentID);
         } else {
@@ -77,8 +78,20 @@ public class FolderController extends BaseController {
             for (int i = pathTemp.size()-1; i >= 0; i--)
                 path.add(pathTemp.get(i));
 
-            return ok(folderContentToString(path,folder));
-//            return ok(folder.render(path,folder));
+//            return ok(folderContentToString(path,folder));
+            return ok(viewFolder.render(path,folder));
+        } else {
+            flash("error", "Dazu hast du keine Berechtigung!");
+            return redirect(controllers.routes.Application.index());
+        }
+    }
+
+    public static Result deleteFolder(Long groupID,Long folderID) {
+        Folder folder = Folder.findById(folderID);
+        Folder groupFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, groupID).getSingleResult();
+        if(Secured.viewFolder(folder) && groupID == folder.group.id) {
+
+            return listFolder(groupID, folderID);
         } else {
             flash("error", "Dazu hast du keine Berechtigung!");
             return redirect(controllers.routes.Application.index());

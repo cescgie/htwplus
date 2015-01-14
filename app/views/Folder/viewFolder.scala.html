@@ -1,0 +1,22 @@
+@(path: List[Folder], folder: Folder)
+@main("viewFolder") {
+
+
+    <p>
+        @for(p <- path) {
+            <a href="@routes.FolderController.listFolder(p.group.id, p.id)">@p.name</a> /
+        }
+        <br><br>
+        @for(f <- folder.childs) {
+            <a href="@routes.FolderController.listFolder(f.group.id, f.id)">@f.toAlternateString()</a><br>
+        }
+        @for(m <- folder.files) {
+            @m.toString() <br>
+            }
+    </p>
+
+
+    <div>
+        <a class="btn success" href="@routes.FolderController.createFolder(folder.group.id,folder.id,"Test1234556")">createFolder</a>
+    </div>
+}

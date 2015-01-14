@@ -77,7 +77,7 @@ GET 	/media/:id/delete					controllers.MediaController.delete(id:Long)
 # Folder (Project)
 GET    /folder/:id/createMedia                      controllers.FolderController.createMedia(id:Long)
 GET    /group/:id/folder/:folderId                  controllers.FolderController.listFolder(id:Long, folderId: Long)
-GET    /group/:id/folder/:folderId/cf/:target      controllers.FolderController.createFolder(id:Long, folderId:Long, target:String)
+GET    /group/:id/folder/:folderId/cf/:target       controllers.FolderController.createFolder(id:Long, folderId:Long, target:String)
 
 
 #Notification
