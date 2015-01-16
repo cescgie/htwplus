@@ -12,6 +12,7 @@ import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import models.Folder;
 import models.services.NotificationService;
 import org.apache.commons.io.FileUtils;
 
@@ -197,23 +198,19 @@ public class MediaController extends BaseController {
      * @return Result
      */
 	@Transactional
-    public static Result upload(String target, Long id) {
+    public static Result upload(Long id, Long folderID) {
 	    final int maxTotalSize = Play.application().configuration().getInt("media.maxSize.total");
 	    final int maxFileSize = Play.application().configuration().getInt("media.maxSize.file");
 	    
 		Call ret = controllers.routes.Application.index();
-		Group group;
+		Group group = Group.findById(id);
+		Folder folder = Folder.findById(folderID);
 
         // Where to put the media
-		if (target.equals(Media.GROUP)) {
-			group = Group.findById(id);
-			if (!Secured.uploadMedia(group)) {
-				return redirect(controllers.routes.Application.index());
-			}
-			ret = controllers.routes.GroupController.media(id);
-		} else {
-			return redirect(ret);
+		if (!Secured.uploadMedia(group)) {
+			return redirect(controllers.routes.Application.index());
 		}
+		ret = controllers.routes.FolderController.listFolder(group.id, folder.id);
 		
 		// Is it to big in total?
 		String[] contentLength = request().headers().get("Content-Length");
@@ -245,22 +242,19 @@ public class MediaController extends BaseController {
 				med.fileName = upload.getFilename();
 				med.file = upload.getFile();				
 				med.owner = Component.currentAccount();
+				med.inFolder = folder;
 				
 				if (Media.byteAsMB(med.file.length()) > maxFileSize) {
 					flash("error", "Die Datei " + med.title + " ist größer als " + maxFileSize + " MB!");
 					return redirect(ret);
 				}
-				
-				String error = "Eine Datei mit dem Namen " + med.title + " existiert bereits";
-				if(target.equals(Media.GROUP)) {
-                    med.temporarySender = Component.currentAccount();
-					med.group = group;
-					if(med.existsInGroup(group)){
-						flash("error", error);
-						return redirect(ret);
-					}
-					
-				} 				
+
+				med.temporarySender = Component.currentAccount();
+				med.group = group;
+				if(med.existsInFolder(folder)){
+					flash("error", "Eine Datei mit dem Namen " + med.title + " existiert bereits");
+					return redirect(ret);
+				}
 				mediaList.add(med);
 			}
 			
@@ -283,95 +277,6 @@ public class MediaController extends BaseController {
 		    return redirect(ret);  
 		}
     }
-
-	// Upload 2 als test für Upoad im Ordner
-
-	public static Result upload2(String target, Long id) {
-		final int maxTotalSize = Play.application().configuration().getInt("media.maxSize.total");
-		final int maxFileSize = Play.application().configuration().getInt("media.maxSize.file");
-
-		Call ret = controllers.routes.Application.index();
-		Group group;
-
-		// Where to put the media
-		if (target.equals(Media.GROUP)) {
-			group = Group.findById(id);
-			if (!Secured.uploadMedia(group)) {
-				return redirect(controllers.routes.Application.index());
-			}
-			ret = controllers.routes.GroupController.media(id);
-		} else {
-			return redirect(ret);
-		}
-
-		// Is it to big in total?
-		String[] contentLength = request().headers().get("Content-Length");
-		if (contentLength != null) {
-			int size = Integer.parseInt(contentLength[0]);
-			if(Media.byteAsMB(size) > maxTotalSize) {
-				flash("error", "Du darfst auf einmal nur " + maxTotalSize + " MB hochladen.");
-				return redirect(ret);
-			}
-		} else {
-			flash("error", "Etwas ist schiefgegangen. Bitte probiere es noch einmal!");
-			return redirect(ret);
-		}
-
-		// Get the data
-		MultipartFormData body = request().body().asMultipartFormData();
-		List<Http.MultipartFormData.FilePart> uploads = body.getFiles();
-
-		List<Media> mediaList = new ArrayList<Media>();
-
-		if (!uploads.isEmpty()) {
-
-			// Create the Media models and perform some checks
-			for (FilePart upload : uploads) {
-
-				Media med = new Media();
-				med.title = upload.getFilename();
-				med.mimetype = upload.getContentType();
-				med.fileName = upload.getFilename();
-				med.file = upload.getFile();
-				med.owner = Component.currentAccount();
-
-				if (Media.byteAsMB(med.file.length()) > maxFileSize) {
-					flash("error", "Die Datei " + med.title + " ist größer als " + maxFileSize + " MB!");
-					return redirect(ret);
-				}
-
-				String error = "Eine Datei mit dem Namen " + med.title + " existiert bereits";
-				if(target.equals(Media.GROUP)) {
-					med.temporarySender = Component.currentAccount();
-					med.group = group;
-					if(med.existsInGroup(group)){
-						flash("error", error);
-						return redirect(ret);
-					}
-
-				}
-				mediaList.add(med);
-			}
-
-			for (Media m : mediaList) {
-				try {
-					m.create();
-
-					// create group notification, if a group exists
-					if (m.group != null) {
-						NotificationService.getInstance().createNotification(m, Media.MEDIA_NEW_MEDIA);
-					}
-				} catch (Exception e) {
-					return internalServerError(e.getMessage());
-				}
-			}
-			flash("success", "Datei(en) erfolgreich hinzugefügt.");
-			return redirect(ret);
-		} else {
-			flash("error", "Etwas ist schiefgegangen. Bitte probiere es noch einmal!");
-			return redirect(ret);
-		}
-	}
 	
 	public static String bytesToString(long bytes, boolean si) {
 		int unit = si ? 1000 : 1024;

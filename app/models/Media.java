@@ -77,6 +77,16 @@ public class Media extends BaseNotifiable implements INotifiable {
 		return false;
 	}
 
+	public boolean existsInFolder(Folder folder) {
+		List<Media> media = folder.files;
+		for (Media m : media) {
+			if(m.title.equals(this.title)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	@Override
 	public void create() {
 		this.size = file.length();

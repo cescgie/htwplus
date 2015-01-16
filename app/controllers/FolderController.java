@@ -102,6 +102,10 @@ public class FolderController extends BaseController {
         Folder groupFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, groupID).getSingleResult();
         if(Secured.deleteFolder(folder) && groupID == folder.group.id) {
             Logger.debug("Delete Folder[" + folder.id + "]");
+            for (Media file : folder.files) {
+                file.delete();
+                Logger.debug("File [" + file.id + "] deleted");
+            }
             folder.delete();
             Logger.debug("Folder[" + folder.id + "] deleted");
             Logger.debug("-> list Folder[" + parent.id + "]");

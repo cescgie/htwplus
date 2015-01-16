@@ -1,10 +1,10 @@
-@(mediaForm: Form[Media],target:String,id:Long) 
+@(mediaForm: Form[Media],id:Long, folderID: Long)
 @import helper._
 @import play._
 
 <h4>Neue Dateien hochladen <div class="loading" id="loadingMedia"></div></h4>
 
-@form(action = routes.MediaController.upload(target, id), 'enctype -> "multipart/form-data", 'id -> "fileuploadForm") {
+@form(action = routes.MediaController.upload(id,folderID), 'enctype -> "multipart/form-data", 'id -> "fileuploadForm") {
 <div class="form-group">
 	<div class="row">
 		<div class="col-xs-12">

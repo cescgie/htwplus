@@ -69,16 +69,17 @@ GET		/friend/:friendshipId/cancel		controllers.FriendshipController.cancelFriend
 
 
 # Media
-POST 	/media/:target/upload/:id			controllers.MediaController.upload(target:String,id:Long)
+#POST 	/media/:target/upload/:id			controllers.MediaController.upload(target:String,id:Long)
 POST	/media/multiple/:target/:id			controllers.MediaController.multiView(target:String,id:Long)
 GET		/media/:id							controllers.MediaController.view(id:Long)
 GET 	/media/:id/delete					controllers.MediaController.delete(id:Long)
 
 # Folder (Project)
-GET    /folder/:id/createMedia              controllers.FolderController.createMedia(id:Long)
-GET    /group/:id/folder/:folderId          controllers.FolderController.listFolder(id:Long, folderId: Long)
-POST   /group/:id/folder/:folderId/cf       controllers.FolderController.createFolder(id:Long, folderId:Long)
-GET    /group/:id/folder/:folderId/df       controllers.FolderController.deleteFolder(id:Long, folderId:Long)
+GET    /folder/:gId/createMedia         controllers.FolderController.createMedia(gId:Long)
+GET    /group/:gId/folder/:fId          controllers.FolderController.listFolder(gId:Long, fId: Long)
+POST   /group/:gId/folder/:fId/cf       controllers.FolderController.createFolder(gId:Long, fId:Long)
+GET    /group/:gId/folder/:fId/df       controllers.FolderController.deleteFolder(gId:Long, fId:Long)
+POST   /group/:gId/folder/:fId/upload	controllers.MediaController.upload(gId: Long, fId: Long)
 
 
 

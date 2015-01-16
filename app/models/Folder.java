@@ -64,7 +64,7 @@ public class Folder extends BaseModel{
 
     @Override
     public void delete() {
-        if (this.isEmpty())
+//        if (this.isEmpty())
             JPA.em().remove(this);
     }
 
