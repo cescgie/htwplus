@@ -13,6 +13,7 @@ import play.mvc.Result;
 import play.mvc.Security;
 import views.html.main;
 import views.html.Folder.*;
+import controllers.Navigation.Level;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import static play.data.Form.form;
 public class FolderController extends BaseController {
 
     final static Form<Folder> folderForm = form(Folder.class);
+    static final int PAGE = 1;
 
     public static Result createFolder(Long groupID, Long parentID) {
         Folder parent = Folder.findById(parentID);
@@ -70,6 +72,7 @@ public class FolderController extends BaseController {
     ///// TO CHANGE
     @Transactional
     public static Result listFolder(Long groupID,Long folderID) {
+        Form<Media> mediaForm = Form.form(Media.class);
         Folder folder = Folder.findById(folderID);
         Folder groupFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, groupID).getSingleResult();
         if(Secured.viewFolder(folder) && groupID == folder.group.id) {
@@ -84,7 +87,8 @@ public class FolderController extends BaseController {
                 path.add(pathTemp.get(i));
 
             Logger.debug("show Folder with ID:" + folderID);
-            return ok(viewFolder.render(path, folder, folderForm));
+            Navigation.set(Navigation.Level.GROUPS, "Media", groupFolder.group.title, controllers.routes.GroupController.view(groupFolder.group.id, PAGE));
+            return ok(views.html.Folder.viewFolder.render(path, folder, folderForm, mediaForm));
         } else {
             flash("error", "Dazu hast du keine Berechtigung!");
             return redirect(controllers.routes.Application.index());
@@ -104,7 +108,7 @@ public class FolderController extends BaseController {
             return redirect(controllers.routes.FolderController.listFolder(groupID, parent.id));
         } else {
             flash("error", "Dazu hast du keine Berechtigung!");
-            return redirect(controllers.routes.FolderController.listFolder(groupID,parent.id));
+            return redirect(controllers.routes.FolderController.listFolder(groupID, parent.id));
         }
     }
 

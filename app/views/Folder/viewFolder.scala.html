@@ -1,29 +1,73 @@
-@(path: List[Folder], folder: Folder, folderForm: Form[Folder])
+@(path: List[Folder], folder: Folder, folderForm: Form[Folder], mediaForm: Form[Media])
 @import helper._
-@main("viewFolder") {
+@import models.enums._
+@main("viewFolder2") {
 
 
-    <p>
+    <!-- Start infoModal -->
+    <div id="infoModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel" aria-hidden="false">
+    @views.html.Group.snippets.infoModal(folder.group)
+    </div>
+    <!-- Ende infoModal -->
+
+    <!-- Start confirmDeleteGroupModal -->
+    <div id="confirmDeleteGroup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    @views.html.Group.snippets.deleteGroupModal(folder.group)
+    </div>
+    <!-- End confirmDeleteGroupModal -->
+
+    <!-- Start confirmLeaveGroupModal -->
+    <div id="confirmLeaveGroup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    @views.html.Group.snippets.leaveGroupModal(folder.group)
+    </div>
+    <!-- End confirmDeleteGroupModal -->
+
+    @views.html.Group.snippets.navTabs(folder.group)
+
+    <div class="clear">
+        <h2 class="hp-truncate">
+            @if(folder.group.groupType.equals(GroupType.open)) { <span class="glyphicon glyphicon-globe"></span> }
+            @if(folder.group.groupType.equals(GroupType.close)) { <span class="glyphicon glyphicon-lock"></span> }
+            @if(folder.group.groupType.equals(GroupType.course)) { <span class="glyphicon glyphicon-briefcase"></span> }
+            @folder.group.title
+        </h2>
+        <br />
+        <br />
         @for(p <- path) {
             <a href="@routes.FolderController.listFolder(p.group.id, p.id)">@p.name</a> /
         }
-        <br><br>
+        <br /><br />
         @for(f <- folder.childs) {
             <a href="@routes.FolderController.listFolder(f.group.id, f.id)">@f.toAlternateString()</a> <a class="button" href="@routes.FolderController.deleteFolder(f.group.id,f.id)">X</a> <br>
         }
-        <br>
-        Files: @folder.files.size() <br><br>
-    </p>
+
+        <br />
+        <br />
+
+        @if(!folder.files.isEmpty) {
+            @views.html.Media.list(folder.files,models.Media.GROUP,folder.group.id)
+        } else {
+            <br /><br />
+            <i>Es wurden noch keine Dateien hochgeladen.</i>
+        }
+        <hr />
+        <br />
 
 
-    @form(routes.FolderController.createFolder(folder.group.id,folder.id)) {
-        <div>
-            @inputText(
-                folderForm("name"),
-                'class -> "form-input",
-                '_label -> "Ordner Name"
-            )
-            <button type="submit">Ordner erstellen</button>
-        </div>
-    }
+        @form(routes.FolderController.createFolder(folder.group.id,folder.id)) {
+            <h4>Neue Dateien hochladen</h4>
+            <div class="controls">
+                <input type="text"name="name" placeholder="Ordner Name">
+            </div>
+            <div class="controls">
+                <button type="submit" class="btn">Erstellen</button>
+            </div>
+        }
+        <br />
+        <br />
+
+        @if(Secured.uploadMedia(folder.group)) {
+            @views.html.Media.upload(mediaForm,models.Media.GROUP,folder.group.id)
+        }
+    </div>
 }
