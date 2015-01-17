@@ -44,8 +44,8 @@ public class PostController extends BaseController {
 		if(post.belongsToAccount()) {
 			Navigation.set(Level.FRIENDS, "Post", post.account.name, controllers.routes.ProfileController.stream(post.account.id, PAGE));
 		}
-		
-		return ok(view.render(post, postForm));
+		Folder groupFolder = FolderController.getGroupFolder(post.group.id);
+		return ok(view.render(post, postForm, groupFolder));
 	}
 	
 	/**

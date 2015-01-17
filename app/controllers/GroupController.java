@@ -104,7 +104,8 @@ public class GroupController extends BaseController {
 			Navigation.set(Level.GROUPS, "Newsstream", group.title, controllers.routes.GroupController.view(group.id, PAGE));
 			Logger.info("Found group with id: " +id);
 			List<Post> posts = Post.getPostsForGroup(group, LIMIT, page);
-			return ok(view.render(group, posts, postForm, Post.countPostsForGroup(group), LIMIT, page));
+//			return ok(view.render(group, posts, postForm, Post.countPostsForGroup(group), LIMIT, page));
+			return ok(view.render(group, posts, postForm, Post.countPostsForGroup(group), LIMIT, page, groupFolder));
 		}
 	}
 	
@@ -112,7 +113,7 @@ public class GroupController extends BaseController {
 	public static Result media(Long id) {
 		Form<Media> mediaForm = Form.form(Media.class);
 		Group group = Group.findById(id);
-		Folder groupFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, group.id).getSingleResult();
+		Folder groupFolder = FolderController.getGroupFolder(group.id);
 		
 		if(!Secured.viewGroup(group)){
 			return redirect(controllers.routes.Application.index());
@@ -191,7 +192,7 @@ public class GroupController extends BaseController {
 	@Transactional
 	public static Result edit(Long id) {
 		Group group = Group.findById(id);
-		
+		Folder groupFolder = FolderController.getGroupFolder(group.id);
 		
 		if (group == null) {
 			return redirect(controllers.routes.GroupController.index());
@@ -199,13 +200,14 @@ public class GroupController extends BaseController {
 			Navigation.set(Level.GROUPS, "Bearbeiten", group.title, controllers.routes.GroupController.view(group.id, PAGE));
 			Form<Group> groupForm = Form.form(Group.class).fill(group);
 			groupForm.data().put("type", String.valueOf(group.groupType.ordinal()));
-			return ok(edit.render(group, groupForm));
+			return ok(edit.render(group, groupForm, groupFolder));
 		}
 	}
 	
 	@Transactional
 	public static Result update(Long groupId) {
 		Group group = Group.findById(groupId);
+		Folder groupFolder = FolderController.getGroupFolder(group.id);
 		Navigation.set(Level.GROUPS, "Bearbeiten", group.title, controllers.routes.GroupController.view(group.id, PAGE));
 		
 		// Check rights
@@ -228,17 +230,17 @@ public class GroupController extends BaseController {
 					String token = filledForm.data().get("token");
 					if(!Group.validateToken(token)){
 						filledForm.reject("token","Bitte einen Token zwischen 4 und 45 Zeichen eingeben!");
-						return ok(edit.render(group, filledForm));
+						return ok(edit.render(group, filledForm, groupFolder));
 					}					
 					if(!Secured.createCourse()) {
 						flash("error", "Du darfst leider keinen Kurs erstellen");
-						return badRequest(edit.render(group, filledForm));
+						return badRequest(edit.render(group, filledForm, groupFolder));
 					}	
 					group.token = token;
 					break;
 			default:
 				filledForm.reject("Nicht möglich!");
-				return ok(edit.render(group, filledForm));
+				return ok(edit.render(group, filledForm, groupFolder));
 		}
 		group.description = description;
 		group.update();
@@ -438,8 +440,9 @@ public class GroupController extends BaseController {
     @Transactional
 	public static Result invite(long groupId) {
 		Group group = Group.findById(groupId);
+		Folder groupFolder = FolderController.getGroupFolder(group.id);
 		Navigation.set(Level.GROUPS, "Freunde einladen", group.title, controllers.routes.GroupController.view(group.id, PAGE));
-		return ok(invite.render(group, Friendship.friendsToInvite(Component.currentAccount(), group), GroupAccount.findAccountsByGroup(group, LinkType.invite)));
+		return ok(invite.render(group, Friendship.friendsToInvite(Component.currentAccount(), group), GroupAccount.findAccountsByGroup(group, LinkType.invite),groupFolder));
 	}
 
     @Transactional

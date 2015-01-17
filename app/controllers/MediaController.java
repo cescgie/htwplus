@@ -38,11 +38,13 @@ public class MediaController extends BaseController {
     @Transactional(readOnly=true)	
     public static Result view(Long id) {
     	Media media = Media.findById(id);
+		Logger.debug("Media: " + media.title);
     	if(Secured.viewMedia(media)) {
 			if (media == null) {
 				return redirect(controllers.routes.Application.index());
 			} else {
 				response().setHeader("Content-disposition","attachment; filename=\"" + media.fileName + "\"");
+				Logger.debug("return ok(media.file)");
 				return ok(media.file);
 			}
     	} else {
@@ -62,8 +64,7 @@ public class MediaController extends BaseController {
 				return redirect(controllers.routes.Application.index());
     		}
     		ret = controllers.routes.GroupController.media(group.id);
-    	} 
-    	
+    	}
     	media.delete();
 		flash("success", "Datei " + media.title + " erfolgreich gelöscht!");
     	return redirect(ret);
@@ -71,14 +72,14 @@ public class MediaController extends BaseController {
     
     @Transactional(readOnly=true)	
     public static Result multiView(String target, Long id) {
-    	
+		Logger.debug("use multiView");
 		Call ret = controllers.routes.Application.index();
 		Group group = null;
 		String filename = "result.zip";
-		
 		if(target.equals(Media.GROUP)) {
 			group = Group.findById(id);
 			if(!Secured.viewGroup(group)){
+				Logger.debug("Secured.viewGroup: false");
 				return redirect(controllers.routes.Application.index());
 			}
 			filename = createFileName(group.title);
@@ -86,28 +87,38 @@ public class MediaController extends BaseController {
 		} else {
 			return redirect(ret);
 		}
-    	
+
+
     	String[] selection = request().body().asFormUrlEncoded().get("selection");
+
     	List<Media> mediaList = new ArrayList<Media>();
     	
     	if(selection != null) {
            	for (String s : selection) {
         		Media media = Media.findById(Long.parseLong(s));
         		if(Secured.viewMedia(media)) {
-            		mediaList.add(media);	
+            		mediaList.add(media);
+
         		} else {
         			flash("error", "Dazu hast du keine Berechtigung!");
         			return redirect(controllers.routes.Application.index());
         		}
            	}
+			Logger.debug("mediaList: " + mediaList.size());
     	} else {
     		flash("error", "Bitte wähle mindestens eine Datei aus.");
     		return redirect(ret);
     	}
 
+		for (Media m: mediaList) {
+			Logger.debug("Media: " + m.title);
+		}
 		try {
+			Logger.debug("create " + filename + " ...");
 			File file = createZIP(mediaList, filename);
-			response().setHeader("Content-disposition","attachment; filename=\"" + filename + "\"");
+			Logger.debug(filename + " created");
+					response().setHeader("Content-disposition", "attachment; filename=\"" + filename + "\"");
+			Logger.debug("return ok(file)");
 	    	return ok(file);
 		} catch (IOException e) {
 			flash("error", "Etwas ist schiefgegangen. Bitte probiere es noch einmal!");

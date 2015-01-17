@@ -1,4 +1,4 @@
-@(group: Group, friendsToInvite: List[Account], alreadyInvitedFriends: List[Account])
+@(group: Group, friendsToInvite: List[Account], alreadyInvitedFriends: List[Account],groupFolder: Folder)
 @import helper._
 @import models.enums._
 
@@ -22,7 +22,7 @@
 	 </div>
 	 <!-- End confirmDeleteGroupModal -->
 
-	@views.html.Group.snippets.navTabs(group)
+	@views.html.Group.snippets.navTabs(group, groupFolder)
 
 	<div class="clear">
 	<h2 class="hp-truncate">

@@ -22,7 +22,7 @@
     </div>
     <!-- End confirmDeleteGroupModal -->
 
-    @views.html.Group.snippets.navTabs(folder.group)
+    @views.html.Group.snippets.navTabs(folder.group,folder)
 
     <div class="clear">
         <h2 class="hp-truncate">
@@ -31,27 +31,20 @@
             @if(folder.group.groupType.equals(GroupType.course)) { <span class="glyphicon glyphicon-briefcase"></span> }
             @folder.group.title
         </h2>
-        <br />
-        <br />
+
         @for(p <- path) {
             <a href="@routes.FolderController.listFolder(p.group.id, p.id)">@p.name</a> /
         }
         <br /><br />
-        @for(f <- folder.childs) {
-            <a href="@routes.FolderController.listFolder(f.group.id, f.id)">@f.toAlternateString()</a> <a class="button" href="@routes.FolderController.deleteFolder(f.group.id,f.id)">X</a> <br>
-        }
 
-        <br />
-        <br />
 
-        @if(!folder.files.isEmpty) {
-            @views.html.Media.list(folder.files,models.Media.GROUP,folder.group.id)
+        @if(!folder.childs.isEmpty || !folder.files.isEmpty) {
+            @views.html.Folder.listAll(folder.childs,folder.files,models.Media.GROUP,folder.group.id)
         } else {
-            <br /><br />
-            <i>Es wurden noch keine Dateien hochgeladen.</i>
+            <br />
+            <i>Es wurden noch kein Ordner angelegt oder eine Datei hochgeladen.</i>
+            <br />
         }
-        <hr />
-        <br />
 
 
         @form(routes.FolderController.createFolder(folder.group.id,folder.id)) {
@@ -65,7 +58,6 @@
                 </div>
             </div>
         }
-        <br />
         <br />
 
         @if(Secured.uploadMedia(folder.group)) {

@@ -1,4 +1,4 @@
-@(post: Post, postForm: Form[Post])
+@(post: Post, postForm: Form[Post], groupFolder: Folder)
 
 @import models.enums._
 @import play._
@@ -25,7 +25,7 @@
 		</div>
 		<!-- End confirmDeleteGroupModal -->
 		
-		@views.html.Group.snippets.navTabs(post.group)
+		@views.html.Group.snippets.navTabs(post.group, groupFolder)
 		
 		<h2 class="hp-truncate">
 			@if(post.group.groupType.equals(GroupType.open)) { <span class="glyphicon glyphicon-globe"></span> }

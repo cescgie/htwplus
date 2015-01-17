@@ -74,7 +74,7 @@ public class FolderController extends BaseController {
     public static Result listFolder(Long groupID,Long folderID) {
         Form<Media> mediaForm = Form.form(Media.class);
         Folder folder = Folder.findById(folderID);
-        Folder groupFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, groupID).getSingleResult();
+        Folder groupFolder = getGroupFolder(groupID);
         if(Secured.viewFolder(folder) && groupID == folder.group.id) {
             Folder folderTemp = folder;
             List<Folder> path = new ArrayList<Folder>();
@@ -97,9 +97,10 @@ public class FolderController extends BaseController {
 
     @Transactional
     public static Result deleteFolder(Long groupID,Long folderID) {
+        Logger.debug("use deleteFolder");
         Folder folder = Folder.findById(folderID);
         Folder parent = folder.parent;
-        Folder groupFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, groupID).getSingleResult();
+        Folder groupFolder = getGroupFolder(groupID);
         if(Secured.deleteFolder(folder) && groupID == folder.group.id) {
             Logger.debug("Delete Folder[" + folder.id + "]");
             for (Media file : folder.files) {
@@ -114,6 +115,11 @@ public class FolderController extends BaseController {
             flash("error", "Dazu hast du keine Berechtigung!");
             return redirect(controllers.routes.FolderController.listFolder(groupID, parent.id));
         }
+    }
+
+
+    public static Folder getGroupFolder(Long groupID) {
+        return (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, groupID).getSingleResult();
     }
 
 
