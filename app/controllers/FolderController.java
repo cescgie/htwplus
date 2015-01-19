@@ -5,19 +5,24 @@ import models.Folder;
 import models.Group;
 import models.Media;
 import play.Logger;
+import play.Play;
 import play.data.Form;
 import play.db.jpa.JPA;
 import play.db.jpa.Transactional;
-import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
-import views.html.main;
-import views.html.Folder.*;
-import controllers.Navigation.Level;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.zip.Deflater;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static play.data.Form.form;
 
@@ -28,6 +33,7 @@ import static play.data.Form.form;
 public class FolderController extends BaseController {
 
     final static Form<Folder> folderForm = form(Folder.class);
+    final static String tempPrefix = "htwplus_temp";
     static final int PAGE = 1;
 
     public static Result createFolder(Long groupID, Long parentID) {
@@ -126,15 +132,6 @@ public class FolderController extends BaseController {
     public static Result redirectFolder(Long groupID, Long folderID) {
         return redirect("/group/" + groupID + "/folder/" + folderID);
     }
-
-    public static Result redirectGroupFolder(Long groupID, Long folderID) {
-        return redirect("/group/" + groupID + "/folder/" + folderID);
-    }
-
-	public static Result redirectFolderError(String error) {
-		return ok("NOT OKAY");
-		//return ok(test.render(error));
-	}
 	
 	public static Result createMedia(Long id) {
 		return ok("OKAY");
@@ -153,5 +150,89 @@ public class FolderController extends BaseController {
         ret += "\n\n";
             ret = ret + "Files: " + files.size() + "\n";
         return ret;
+    }
+
+    @Transactional(readOnly=true)
+    public static Result multiView(Long gID, Long fID) throws IOException {
+        Logger.debug("use multiView");
+        Group group = Group.findById(gID);
+        Logger.debug("Group[" + group.id + "]");
+        if(!Secured.viewGroup(group)){
+            Logger.debug("Secured.viewGroup: false");
+            return redirect(controllers.routes.Application.index());
+        }
+
+        String filename = group.title + "-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + ".zip";
+        String filePath = "";
+        String[] selection = request().body().asFormUrlEncoded().get("selection");
+        Boolean selectionHasFiles = true;
+        String selectetFolder = "";
+        String tmpPath = Play.application().configuration().getString("media.tempPath");
+        File file = File.createTempFile(tempPrefix, ".tmp", new File(tmpPath));
+
+        ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(file));
+        zipOut.setLevel(Deflater.NO_COMPRESSION);
+        byte[] buffer = new byte[4092];
+        int byteCount = 0;
+
+        if(selection != null) {
+            for (String s : selection) {
+                Media media = Media.findById(Long.parseLong(s));
+                Folder folder = Folder.findById(Long.parseLong(s));
+                if (media != null) {
+                    selectionHasFiles = false;
+                    addFile2Zipp(media,filePath,zipOut);
+                } else {
+                    selectetFolder = folder.name;
+                    addFolder2Zipp(filePath, folder, zipOut);
+                }
+            }
+        } else {
+            flash("error", "Bitte wähle mindestens eine Datei aus.");
+            return redirect(controllers.routes.FolderController.listFolder(gID,fID));
+        }
+        zipOut.flush();
+        zipOut.close();
+        if(selectionHasFiles && selection.length == 1) {
+            filename = selectetFolder + ".zip";
+        }
+        Logger.debug(filename + " created");
+        response().setHeader("Content-disposition", "attachment; filename=\"" + filename + "\"");
+        Logger.debug("return ok(file)");
+        return ok(file);
+    }
+
+    private static void addFile2Zipp(Media media, String filePath, ZipOutputStream zipOut) throws IOException{
+        Logger.debug("add Filename: " + media.file.getName());
+        byte[] buffer = new byte[4092];
+        int byteCount = 0;
+
+        zipOut.putNextEntry(new ZipEntry(filePath + media.fileName));
+        FileInputStream fis = new FileInputStream(media.file);
+        while ((byteCount = fis.read(buffer)) != -1) {
+            zipOut.write(buffer, 0, byteCount);
+        }
+        fis.close();
+        zipOut.closeEntry();
+    }
+
+    private static void addFolder2Zipp(String filePath, Folder folder, ZipOutputStream zipOut) throws IOException{
+        Logger.debug("add Folder: " + folder.name);
+        filePath = filePath + folder.name + "/";
+        zipOut.putNextEntry(new ZipEntry(filePath));
+        zipOut.closeEntry();
+
+        if(!folder.files.isEmpty()) {
+            for (Media m : folder.files) {
+                Media media = Media.findById(m.id);
+                addFile2Zipp(media, filePath, zipOut);
+            }
+        }
+
+        if(!folder.childs.isEmpty()) {
+            for (Folder f : folder.childs) {
+                addFolder2Zipp(filePath, f, zipOut);
+            }
+        }
     }
 }

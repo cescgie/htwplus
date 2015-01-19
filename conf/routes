@@ -80,7 +80,7 @@ GET    /group/:gId/folder/:fId          controllers.FolderController.listFolder(
 POST   /group/:gId/folder/:fId/cf       controllers.FolderController.createFolder(gId:Long, fId:Long)
 GET    /group/:gId/folder/:fId/df       controllers.FolderController.deleteFolder(gId:Long, fId:Long)
 POST   /group/:gId/folder/:fId/upload	controllers.MediaController.upload(gId: Long, fId: Long)
-
+POST   /group/:gId/folder/:fId/dlf			        controllers.FolderController.multiView(gId:Long, fId:Long)
 
 
 #Notification

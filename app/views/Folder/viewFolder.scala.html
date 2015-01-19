@@ -39,7 +39,7 @@
 
 
         @if(!folder.childs.isEmpty || !folder.files.isEmpty) {
-            @views.html.Folder.listAll(folder.childs,folder.files,models.Media.GROUP,folder.group.id)
+            @views.html.Folder.listAll(folder.childs,folder.files,models.Media.GROUP,folder.id,folder.group.id)
         } else {
             <br />
             <i>Es wurden noch kein Ordner angelegt oder eine Datei hochgeladen.</i>
