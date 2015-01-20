@@ -36,28 +36,23 @@ public class FolderController extends BaseController {
 
     final static Form<Folder> folderForm = form(Folder.class);
     final static String tempPrefix = "htwplus_temp";
-    static final int PAGE = 1;
+    final static int DEPTH = 6;
+    final static int PAGE = 1;
 
     public static Result createFolder(Long groupID, Long parentID) {
         Folder parent = Folder.findById(parentID);
         Form<Folder> filledForm = folderForm.bindFromRequest();
         String name = filledForm.data().get("name");
         if(Secured.viewFolder(parent) && groupID == parent.group.id) {
-            Folder folder = new Folder();
-            if (allowToCreate(name,parentID)) {
+            if (allowToCreate(name,parent)) {
+                Folder folder = new Folder();
                 folder.name = name;
-                if (parentID != null) {
-                    folder.group = parent.group;
-                    folder.parent = parent;
-                    folder.depth = parent.depth + 1;
-                } else {
-                    folder.group = null;
-                    folder.parent = null;
-                    folder.depth = 0;
-                }
+                folder.group = parent.group;
+                folder.parent = parent;
+                folder.depth = parent.depth + 1;
                 folder.create();
             } else {
-                flash("error", "Dazu hast du keine Berechtigung, ein Ordner mit diesem Namen existiert bereits!");
+                flash("error", "Ein Ordner mit diesem Namen existiert bereits oder die maximale Ordnertiefe wurde erreicht!");
                 return redirectFolder(groupID, parentID);
             }
             return redirectFolder(parent.group.id,parentID);
@@ -67,33 +62,27 @@ public class FolderController extends BaseController {
         }
     }
 
-    private static boolean allowToCreate(String argName, Long argParentId) {
-        boolean allow = true;
-        List<Folder> folders = Folder.findById(argParentId).childs;
-        if (folders != null)
-            for (Folder f: folders)
+    private static boolean allowToCreate(String argName, Folder parent) {
+        boolean allow = false;
+        if (parent.depth < DEPTH) {
+            allow = true;
+        if (parent.childs != null)
+            for (Folder f: parent.childs)
                 if (f.name.equals(argName))
                     allow =false;
+
+        }
         return allow;
     }
 
-    ///// TO CHANGE
+
     @Transactional
-    public static Result listFolder(Long groupID,Long folderID) {
+    public static Result listFolder(Long groupID, Long folderID) {
         Form<Media> mediaForm = Form.form(Media.class);
         Folder folder = Folder.findById(folderID);
         Folder groupFolder = getGroupFolder(groupID);
         if(Secured.viewFolder(folder) && groupID == folder.group.id) {
-            Folder folderTemp = folder;
-            List<Folder> path = new ArrayList<Folder>();
-            List<Folder> pathTemp = new ArrayList<Folder>();
-            while (folderTemp.depth > 0) {
-                pathTemp.add(folderTemp);
-                folderTemp = folderTemp.parent;
-            }
-            for (int i = pathTemp.size()-1; i >= 0; i--)
-                path.add(pathTemp.get(i));
-
+            List<Folder> path = getPathOfThisFolder(folder);
             Logger.debug("show Folder with ID:" + folderID);
             Navigation.set(Navigation.Level.GROUPS, "Media", groupFolder.group.title, controllers.routes.GroupController.view(groupFolder.group.id, PAGE));
             return ok(views.html.Folder.viewFolder.render(path, folder, folderForm, mediaForm));
@@ -106,21 +95,32 @@ public class FolderController extends BaseController {
         }
     }
 
+    private static List<Folder> getPathOfThisFolder(Folder folder) {
+        List<Folder> pathTemp = new ArrayList<Folder>();
+        List<Folder> path = new ArrayList<Folder>();
+        while (folder.depth > 0) {
+            pathTemp.add(folder);
+            folder = folder.parent;
+        }
+        for (int i = pathTemp.size()-1; i >= 0; i--) {
+            path.add(pathTemp.get(i));
+        }
+        return path;
+    }
+
     @Transactional
     public static Result deleteFolder(Long groupID,Long folderID) {
         Logger.debug("use deleteFolder");
         Folder folder = Folder.findById(folderID);
         Folder parent = folder.parent;
-        Folder groupFolder = getGroupFolder(groupID);
         if(Secured.deleteFolder(folder) && groupID == folder.group.id) {
-            Logger.debug("Delete Folder[" + folder.id + "]");
+            Logger.debug("Delete Folder[" + folder.id + "]...");
             for (Media file : folder.files) {
                 file.delete();
                 Logger.debug("File [" + file.id + "] deleted");
             }
             folder.delete();
-            Logger.debug("Folder[" + folder.id + "] deleted");
-            Logger.debug("-> list Folder[" + parent.id + "]");
+            Logger.debug("Folder[" + folder.id + "] -> deleted");
             return redirect(controllers.routes.FolderController.listFolder(groupID, parent.id));
         } else {
             flash("error", "Dazu hast du keine Berechtigung!");
@@ -133,14 +133,10 @@ public class FolderController extends BaseController {
         try {
             groupFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, groupID).getSingleResult();
         } catch (NoResultException e) {
-            groupFolder = null;
-        }
-
-        if(groupFolder == null) {
             Group group = Group.findById(groupID);
             Folder rootFolder = getRootFolder();
             Logger.debug("Create Group Folder...");
-            groupFolder = new Folder(); //FolderController.createFolder("root", null);
+            groupFolder = new Folder();
             groupFolder.name = group.title;
             groupFolder.depth = rootFolder.depth + 1;
             groupFolder.parent = rootFolder;
@@ -157,12 +153,8 @@ public class FolderController extends BaseController {
         try {
             rootFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT).getSingleResult();
         } catch (NoResultException e) {
-            rootFolder = null;
-        }
-
-        if(rootFolder == null) {
             Logger.debug("Create Root Folder...");
-            rootFolder = new Folder(); //FolderController.createFolder("root", null);
+            rootFolder = new Folder();
             rootFolder.name = "root";
             rootFolder.depth = 0;
             rootFolder.parent = null;

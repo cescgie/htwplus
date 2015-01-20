@@ -48,20 +48,19 @@ public class GroupController extends BaseController {
 	public static Result view(Long id, int page) {
 
 		Logger.debug("ID von " + id);
-		
+
 		List<Folder> list = JPA.em().createNamedQuery(Folder.QUERY_FETCH_ALL).getResultList();
 		Logger.debug("List: " + list.size());
 
 		Logger.info("Show group with id: " +id);
 		Group group = Group.findById(id);
 
-		FolderController.getRootFolder();
 		Folder groupFolder = FolderController.getGroupFolder(group.id);
 
 		if(!Secured.viewGroup(group)){
 			return redirect(controllers.routes.Application.index());
 		}
-		
+
 		if (group == null) {
 			Logger.error("No group found with id: " +id);
 			return redirect(controllers.routes.GroupController.index());
@@ -76,7 +75,6 @@ public class GroupController extends BaseController {
 	
 	@Transactional(readOnly=true)
 	public static Result media(Long id) {
-		Form<Media> mediaForm = Form.form(Media.class);
 		Group group = Group.findById(id);
 		Folder groupFolder = FolderController.getGroupFolder(group.id);
 		
@@ -88,7 +86,6 @@ public class GroupController extends BaseController {
 			return redirect(controllers.routes.GroupController.index());
 		} else {
 			Navigation.set(Level.GROUPS, "Media", group.title, controllers.routes.GroupController.view(group.id, PAGE));
-			List<Media> mediaSet = group.media;
 			return redirect(controllers.routes.FolderController.listFolder(group.id,groupFolder.id));
 		}
 	}

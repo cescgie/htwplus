@@ -63,30 +63,5 @@ public class Folder extends BaseModel{
             JPA.em().remove(this);
     }
 
-    public String getPath() {
-        String result = "";
-        String tmp = "";
-        Folder f = this;
-        while (f.depth > 1) {
-            tmp = f.name;
-            result = tmp.concat("/").concat(result);
-            f = f.parent;
-        }
-        return result;
-    }
-
-    public boolean isEmpty() {
-        boolean result = false;
-        if (this.files.isEmpty())
-            result = true;
-        return result;
-    }
-
-    public String toAlternateString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("folder { ").append("id :").append(id).append(", ")
-                .append("name :").append(name).append(" }");
-        return sb.toString();
-    }
 }
 

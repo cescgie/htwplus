@@ -70,7 +70,7 @@ public class MediaController extends BaseController {
     	return redirect(ret);
     }	
     
-    @Transactional(readOnly=true)	
+    @Transactional(readOnly=true)
     public static Result multiView(String target, Long id) {
 		Logger.debug("use multiView");
 		Call ret = controllers.routes.Application.index();
@@ -92,7 +92,7 @@ public class MediaController extends BaseController {
     	String[] selection = request().body().asFormUrlEncoded().get("selection");
 
     	List<Media> mediaList = new ArrayList<Media>();
-    	
+
     	if(selection != null) {
            	for (String s : selection) {
         		Media media = Media.findById(Long.parseLong(s));
