@@ -26,7 +26,6 @@ GET		/group/create						controllers.GroupController.create()
 GET		/group/:id/stream					controllers.GroupController.view(id:Long, page: Integer ?= 1)
 GET		/group/:id							controllers.GroupController.view(id:Long, page: Integer ?= 1)
 GET		/group/:id/media					controllers.GroupController.media(id:Long)
-#GET		/group/:id/media/:folderId			controllers.GroupController.media(id:Long, folderId: Long)
 GET		/group/:id/edit						controllers.GroupController.edit(id:Long)
 POST	/group/:id/update					controllers.GroupController.update(id:Long)
 GET		/group/:id/delete					controllers.GroupController.delete(id:Long)
@@ -75,12 +74,11 @@ GET		/media/:id							controllers.MediaController.view(id:Long)
 GET 	/media/:id/delete					controllers.MediaController.delete(id:Long)
 
 # Folder (Project)
-GET    /folder/:gId/createMedia         controllers.FolderController.createMedia(gId:Long)
 GET    /group/:gId/folder/:fId          controllers.FolderController.listFolder(gId:Long, fId: Long)
 POST   /group/:gId/folder/:fId/cf       controllers.FolderController.createFolder(gId:Long, fId:Long)
 GET    /group/:gId/folder/:fId/df       controllers.FolderController.deleteFolder(gId:Long, fId:Long)
 POST   /group/:gId/folder/:fId/upload	controllers.MediaController.upload(gId: Long, fId: Long)
-POST   /group/:gId/folder/:fId/dlf			        controllers.FolderController.multiView(gId:Long, fId:Long)
+POST   /group/:gId/folder/:fId/dlf	    controllers.FolderController.multiView(gId:Long, fId:Long)
 
 
 #Notification

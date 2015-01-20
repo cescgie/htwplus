@@ -50,11 +50,7 @@ public class Folder extends BaseModel{
 
     @Override
     public void create() {
-        try {
             JPA.em().persist(this);
-        } catch (Exception e) {
-            //Blabla
-        }
     }
 
     @Override
@@ -64,7 +60,6 @@ public class Folder extends BaseModel{
 
     @Override
     public void delete() {
-//        if (this.isEmpty())
             JPA.em().remove(this);
     }
 

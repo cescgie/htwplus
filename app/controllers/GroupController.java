@@ -51,48 +51,13 @@ public class GroupController extends BaseController {
 		
 		List<Folder> list = JPA.em().createNamedQuery(Folder.QUERY_FETCH_ALL).getResultList();
 		Logger.debug("List: " + list.size());
-		
-		Folder rootFolder = null;
-		Folder groupFolder = null;
-		if (list.isEmpty()) {
-			Logger.debug("Create Root Folder");
-			rootFolder = new Folder(); //FolderController.createFolder("root", null);
-			rootFolder.name = "root";
-			rootFolder.depth = 0;
-			rootFolder.parent = null;
-			rootFolder.group = null;
-			rootFolder.create();
-			Logger.debug("Create Root Folder - created");
-		} else {
-			rootFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT).getSingleResult();
-		}
 
 		Logger.info("Show group with id: " +id);
 		Group group = Group.findById(id);
-		
 
-		List<Folder> list1 = JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, group.id).getResultList();
-		Logger.debug("List of Group size: " + list1.size() + "(GroupID:" + group.id +")");
-		
-		for(Folder f : list1) {
-			Logger.debug("Folder:  " + f.toAlternateString());
-		}
-		
-		
-		if (list1.isEmpty()) {
-			Logger.debug("Create root folder for group");
-			groupFolder = new Folder(); //FolderController.createFolder("root", null);
-			groupFolder.name = "rootOf"+group.title;
-			groupFolder.depth = 1;
-			groupFolder.parent = rootFolder;
-			groupFolder.group = group;
-			groupFolder.create();
-			Logger.debug("Root Folder for group created with ID:" + groupFolder.id);
-		} else {
-			groupFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, group.id).getSingleResult();
-		}
-		
-		
+		FolderController.getRootFolder();
+		Folder groupFolder = FolderController.getGroupFolder(group.id);
+
 		if(!Secured.viewGroup(group)){
 			return redirect(controllers.routes.Application.index());
 		}
@@ -104,7 +69,7 @@ public class GroupController extends BaseController {
 			Navigation.set(Level.GROUPS, "Newsstream", group.title, controllers.routes.GroupController.view(group.id, PAGE));
 			Logger.info("Found group with id: " +id);
 			List<Post> posts = Post.getPostsForGroup(group, LIMIT, page);
-//			return ok(view.render(group, posts, postForm, Post.countPostsForGroup(group), LIMIT, page));
+
 			return ok(view.render(group, posts, postForm, Post.countPostsForGroup(group), LIMIT, page, groupFolder));
 		}
 	}
@@ -123,9 +88,8 @@ public class GroupController extends BaseController {
 			return redirect(controllers.routes.GroupController.index());
 		} else {
 			Navigation.set(Level.GROUPS, "Media", group.title, controllers.routes.GroupController.view(group.id, PAGE));
-			List<Media> mediaSet = group.media; 
-//			return ok(media.render(group, mediaForm, mediaSet));
-			return redirect(controllers.routes.FolderController.listFolder(group.id,groupFolder.id));			// Für einfachere Navigation sofort im GroupOrdner
+			List<Media> mediaSet = group.media;
+			return redirect(controllers.routes.FolderController.listFolder(group.id,groupFolder.id));
 		}
 	}
 	

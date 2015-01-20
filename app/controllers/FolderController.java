@@ -9,9 +9,11 @@ import play.Play;
 import play.data.Form;
 import play.db.jpa.JPA;
 import play.db.jpa.Transactional;
+import play.mvc.Call;
 import play.mvc.Result;
 import play.mvc.Security;
 
+import javax.persistence.NoResultException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -95,8 +97,11 @@ public class FolderController extends BaseController {
             Logger.debug("show Folder with ID:" + folderID);
             Navigation.set(Navigation.Level.GROUPS, "Media", groupFolder.group.title, controllers.routes.GroupController.view(groupFolder.group.id, PAGE));
             return ok(views.html.Folder.viewFolder.render(path, folder, folderForm, mediaForm));
+        } else if(Secured.viewFolder(folder) && groupID != folder.group.id) {
+            flash("success", "Aufgrund eines Ordnerwechsel wurde die Gruppenansicht gewechselt!");
+            return redirect(controllers.routes.FolderController.listFolder(folder.group.id, folder.id));
         } else {
-            flash("error", "Dazu hast du keine Berechtigung!");
+            flash("error", "Für den Zugang zu diesem Ordner hast du keine Berechtigung!");
             return redirect(controllers.routes.Application.index());
         }
     }
@@ -123,34 +128,56 @@ public class FolderController extends BaseController {
         }
     }
 
-
     public static Folder getGroupFolder(Long groupID) {
-        return (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, groupID).getSingleResult();
+        Folder groupFolder = null;
+        try {
+            groupFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, groupID).getSingleResult();
+        } catch (NoResultException e) {
+            groupFolder = null;
+        }
+
+        if(groupFolder == null) {
+            Group group = Group.findById(groupID);
+            Folder rootFolder = getRootFolder();
+            Logger.debug("Create Group Folder...");
+            groupFolder = new Folder(); //FolderController.createFolder("root", null);
+            groupFolder.name = group.title;
+            groupFolder.depth = rootFolder.depth + 1;
+            groupFolder.parent = rootFolder;
+            groupFolder.group = group;
+            groupFolder.create();
+            Logger.debug("Group Folder -> created");
+        }
+
+        return groupFolder;
     }
 
+    public static Folder getRootFolder() {
+        Folder rootFolder = null;
+        try {
+            rootFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT).getSingleResult();
+        } catch (NoResultException e) {
+            rootFolder = null;
+        }
+
+        if(rootFolder == null) {
+            Logger.debug("Create Root Folder...");
+            rootFolder = new Folder(); //FolderController.createFolder("root", null);
+            rootFolder.name = "root";
+            rootFolder.depth = 0;
+            rootFolder.parent = null;
+            rootFolder.group = null;
+            rootFolder.create();
+            Logger.debug("Root Folder -> created");
+        }
+
+        return rootFolder;
+    }
 
     public static Result redirectFolder(Long groupID, Long folderID) {
         return redirect("/group/" + groupID + "/folder/" + folderID);
     }
-	
-	public static Result createMedia(Long id) {
-		return ok("OKAY");
-	}
 
-    private static String folderContentToString(List<Folder> path, Folder folder) {
-        String ret = "";
-        for (Folder f:path)
-            ret = ret + f.name + "/";
-        ret += "\n\n";
-        List<Folder> childs = folder.childs;
-        List<Media> files = folder.files;
-        int file = 1;
-        for (Folder f: childs)
-            ret = ret + f.toAlternateString() + "\n";
-        ret += "\n\n";
-            ret = ret + "Files: " + files.size() + "\n";
-        return ret;
-    }
 
     @Transactional(readOnly=true)
     public static Result multiView(Long gID, Long fID) throws IOException {
@@ -172,8 +199,6 @@ public class FolderController extends BaseController {
 
         ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(file));
         zipOut.setLevel(Deflater.NO_COMPRESSION);
-        byte[] buffer = new byte[4092];
-        int byteCount = 0;
 
         if(selection != null) {
             for (String s : selection) {
