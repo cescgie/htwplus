@@ -61,7 +61,7 @@ public class GroupController extends BaseController {
 			return redirect(controllers.routes.Application.index());
 		}
 
-		Folder groupFolder = FolderController.getGroupFolder(group.id);
+		Folder groupFolder = FolderController.getGroupFolder(group);
 
 		if (group == null) {
 			Logger.error("No group found with id: " +id);
@@ -78,7 +78,7 @@ public class GroupController extends BaseController {
 	@Transactional(readOnly=true)
 	public static Result media(Long id) {
 		Group group = Group.findById(id);
-		Folder groupFolder = FolderController.getGroupFolder(group.id);
+		Folder groupFolder = FolderController.getGroupFolder(group);
 		
 		if(!Secured.viewGroup(group)){
 			return redirect(controllers.routes.Application.index());
@@ -147,7 +147,7 @@ public class GroupController extends BaseController {
 			}
 			
 			group.createWithGroupAccount(Component.currentAccount());
-			FolderController.getGroupFolder(group.id); // Create draus machen !!!!!!!!!!!
+			FolderController.createGroupFolder(group);
 			flash("success", successMsg+" erstellt!");
 			return redirect(controllers.routes.GroupController.view(group.id, PAGE));
 		}
@@ -156,7 +156,7 @@ public class GroupController extends BaseController {
 	@Transactional
 	public static Result edit(Long id) {
 		Group group = Group.findById(id);
-		Folder groupFolder = FolderController.getGroupFolder(group.id);
+		Folder groupFolder = FolderController.getGroupFolder(group);
 		
 		if (group == null) {
 			return redirect(controllers.routes.GroupController.index());
@@ -171,7 +171,7 @@ public class GroupController extends BaseController {
 	@Transactional
 	public static Result update(Long groupId) {
 		Group group = Group.findById(groupId);
-		Folder groupFolder = FolderController.getGroupFolder(group.id);
+		Folder groupFolder = FolderController.getGroupFolder(group);
 		Navigation.set(Level.GROUPS, "Bearbeiten", group.title, controllers.routes.GroupController.view(group.id, PAGE));
 		
 		// Check rights
@@ -218,7 +218,7 @@ public class GroupController extends BaseController {
 		Group group = Group.findById(id);
 		if (Secured.deleteGroup(group)) {
 			group.delete();
-			Folder folder = FolderController.getGroupFolder(id);
+			Folder folder = FolderController.getGroupFolder(group);
 			FolderController.deleteFolder(id,folder.id);
 			flash("info", "'" + group.title + "' wurde erfolgreich gelöscht!");
 		} else {
@@ -406,7 +406,7 @@ public class GroupController extends BaseController {
     @Transactional
 	public static Result invite(long groupId) {
 		Group group = Group.findById(groupId);
-		Folder groupFolder = FolderController.getGroupFolder(group.id);
+		Folder groupFolder = FolderController.getGroupFolder(group);
 		Navigation.set(Level.GROUPS, "Freunde einladen", group.title, controllers.routes.GroupController.view(group.id, PAGE));
 		return ok(invite.render(group, Friendship.friendsToInvite(Component.currentAccount(), group), GroupAccount.findAccountsByGroup(group, LinkType.invite),groupFolder));
 	}

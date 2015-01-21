@@ -36,7 +36,7 @@ public class FolderController extends BaseController {
 
     final static Form<Folder> folderForm = form(Folder.class);
     final static String tempPrefix = "htwplus_temp";
-    final static int DEPTH = 6;
+    public static final int DEPTH = 6;
     final static int PAGE = 1;
 
     public static Result createFolder(Long groupID, Long parentID) {
@@ -83,7 +83,7 @@ public class FolderController extends BaseController {
         Group group = Group.findById(groupID);
 
         if(Secured.viewFolder(folder) && Secured.viewGroup(group) && groupID == folder.group.id) {
-            Folder groupFolder = getGroupFolder(groupID);
+            Folder groupFolder = getGroupFolder(group);
             List<Folder> path = getPathOfThisFolder(folder);
             Logger.debug("show Folder with ID:" + folderID);
             Navigation.set(Navigation.Level.GROUPS, "Media", groupFolder.group.title, controllers.routes.GroupController.view(groupFolder.group.id, PAGE));
@@ -130,14 +130,10 @@ public class FolderController extends BaseController {
         }
     }
 
-    public static Folder getGroupFolder(Long groupID) {
-        // abfragen ob grupiID existiert !!!! und createGroup trennen
+    public static Folder createGroupFolder(Group group) {
+        Folder rootFolder = getRootFolder();
         Folder groupFolder = null;
-        try {
-            groupFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, groupID).getSingleResult();
-        } catch (NoResultException e) {
-            Group group = Group.findById(groupID);
-            Folder rootFolder = getRootFolder();
+        if(Secured.viewGroup(group)) {
             Logger.debug("Create Group Folder...");
             groupFolder = new Folder();
             groupFolder.name = group.title;
@@ -147,11 +143,31 @@ public class FolderController extends BaseController {
             groupFolder.create();
             Logger.debug("Group Folder -> created");
         }
+        return groupFolder;
+    }
+
+    public static Folder getGroupFolder(Group group) {
+        Folder groupFolder = null;
+        if(Secured.viewGroup(group)) {
+            try {
+                groupFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, group.id).getSingleResult();
+            } catch (NoResultException e) {
+                Folder rootFolder = getRootFolder();
+                Logger.debug("Create Group Folder...");
+                groupFolder = new Folder();
+                groupFolder.name = group.title;
+                groupFolder.depth = rootFolder.depth + 1;
+                groupFolder.parent = rootFolder;
+                groupFolder.group = group;
+                groupFolder.create();
+                Logger.debug("Group Folder -> created");
+            }
+        }
 
         return groupFolder;
     }
 
-    public static Folder getRootFolder() {
+    private static Folder getRootFolder() {
         Folder rootFolder = null;
         try {
             rootFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT).getSingleResult();
