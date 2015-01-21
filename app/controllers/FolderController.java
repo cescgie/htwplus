@@ -80,15 +80,17 @@ public class FolderController extends BaseController {
     public static Result listFolder(Long groupID, Long folderID) {
         Form<Media> mediaForm = Form.form(Media.class);
         Folder folder = Folder.findById(folderID);
-        Folder groupFolder = getGroupFolder(groupID);
-        if(Secured.viewFolder(folder) && groupID == folder.group.id) {
+        Group group = Group.findById(groupID);
+
+        if(Secured.viewFolder(folder) && Secured.viewGroup(group) && groupID == folder.group.id) {
+            Folder groupFolder = getGroupFolder(groupID);
             List<Folder> path = getPathOfThisFolder(folder);
             Logger.debug("show Folder with ID:" + folderID);
             Navigation.set(Navigation.Level.GROUPS, "Media", groupFolder.group.title, controllers.routes.GroupController.view(groupFolder.group.id, PAGE));
             return ok(views.html.Folder.viewFolder.render(path, folder, folderForm, mediaForm));
-        } else if(Secured.viewFolder(folder) && groupID != folder.group.id) {
-            flash("success", "Aufgrund eines Ordnerwechsel wurde die Gruppenansicht gewechselt!");
-            return redirect(controllers.routes.FolderController.listFolder(folder.group.id, folder.id));
+//        } else if(Secured.viewFolder(folder) && groupID != folder.group.id) {
+//            flash("success", "Aufgrund eines Ordnerwechsel wurde die Gruppenansicht gewechselt!");
+//            return redirect(controllers.routes.FolderController.listFolder(folder.group.id, folder.id));
         } else {
             flash("error", "Für den Zugang zu diesem Ordner hast du keine Berechtigung!");
             return redirect(controllers.routes.Application.index());
@@ -129,6 +131,7 @@ public class FolderController extends BaseController {
     }
 
     public static Folder getGroupFolder(Long groupID) {
+        // abfragen ob grupiID existiert !!!! und createGroup trennen
         Folder groupFolder = null;
         try {
             groupFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, groupID).getSingleResult();
