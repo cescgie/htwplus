@@ -7,6 +7,7 @@ import java.util.Set;
 
 import javax.persistence.*;
 
+import controllers.FolderController;
 import models.base.BaseNotifiable;
 import models.base.INotifiable;
 import models.enums.GroupType;
@@ -139,11 +140,6 @@ public class Group extends BaseNotifiable implements INotifiable {
 			post.delete();
 		}
 
-		// delete media
-		for (Media media : this.media) {
-			media.delete();
-		}
-		
 		// Delete Notifications
         Notification.deleteReferences(this);
 		JPA.em().remove(this);

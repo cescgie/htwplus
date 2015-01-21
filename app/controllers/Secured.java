@@ -472,16 +472,17 @@ public class Secured extends Security.Authenticator {
 	 * @return True, if logged in account is allowed to delete folder
 	 */
 	public static boolean deleteFolder(Folder folder) {
+		Logger.debug("check delete Folder[" + folder.id + "]...");
 		Account current = Component.currentAccount();
 		boolean returnBool = false;
 		if (folder == null) {
 			Logger.debug("Delete Folder[" + folder.id + "]: null");
 			returnBool =  false;
 		} else if(Secured.isAdmin()) {
-			Logger.debug("Delete Folder[" + folder.id + "]: Admin");
+			Logger.debug("Delete Folder[" + folder.id + "] as Admin");
 			returnBool =  true;
 		} else if (Secured.isOwnerOfGroup(folder.group, current)) {
-			Logger.debug("Delete Folder[" + folder.id + "]: Owner");
+			Logger.debug("Delete Folder[" + folder.id + "] as Owner");
 			returnBool = true;
 		}
 		return returnBool;

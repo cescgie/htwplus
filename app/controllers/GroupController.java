@@ -55,11 +55,13 @@ public class GroupController extends BaseController {
 		Logger.info("Show group with id: " +id);
 		Group group = Group.findById(id);
 
-		Folder groupFolder = FolderController.getGroupFolder(group.id);
+//		Folder groupFolder = FolderController.getGroupFolder(group.id);
 
 		if(!Secured.viewGroup(group)){
 			return redirect(controllers.routes.Application.index());
 		}
+
+		Folder groupFolder = FolderController.getGroupFolder(group.id);
 
 		if (group == null) {
 			Logger.error("No group found with id: " +id);
@@ -145,6 +147,7 @@ public class GroupController extends BaseController {
 			}
 			
 			group.createWithGroupAccount(Component.currentAccount());
+			FolderController.getGroupFolder(group.id); // Create draus machen !!!!!!!!!!!
 			flash("success", successMsg+" erstellt!");
 			return redirect(controllers.routes.GroupController.view(group.id, PAGE));
 		}
@@ -215,6 +218,8 @@ public class GroupController extends BaseController {
 		Group group = Group.findById(id);
 		if (Secured.deleteGroup(group)) {
 			group.delete();
+			Folder folder = FolderController.getGroupFolder(id);
+			FolderController.deleteFolder(id,folder.id);
 			flash("info", "'" + group.title + "' wurde erfolgreich gelöscht!");
 		} else {
 			flash("error", "Dazu hast du keine Berechtigung!");

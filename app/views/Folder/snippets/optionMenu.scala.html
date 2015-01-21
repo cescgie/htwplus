@@ -2,25 +2,26 @@
 @import helper._
 @import models._
 
-<!-- Start confirmDeleteFolderModal -->
-<div class="modal fade" id="confirmDeleteMedia@folder.id" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
-    @views.html.Folder.snippets.deleteFolderModal(folder)
-</div>
-<!-- End confirmDeleteFolderModal -->
 
-<div class="dropdown">
-    <a class="dropdown-toggle" id="dropdownMenu" data-toggle="dropdown">
-        <span class="glyphicon glyphicon-chevron-down"></span>
-    </a>
+@if(Secured.deleteFolder(folder)) {
+    <!-- Start confirmDeleteFolderModal -->
+    <div class="modal fade" id="confirmDeleteMedia@folder.id" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        @views.html.Folder.snippets.deleteFolderModal(folder)
+    </div>
+    <!-- End confirmDeleteFolderModal -->
 
-    <ul class="dropdown-menu nav-pills" role="menu" aria-labelledby="dropdownMenu">
+    <div class="dropdown">
+        <a class="dropdown-toggle" id="dropdownMenu" data-toggle="dropdown">
+            <span class="glyphicon glyphicon-chevron-down"></span>
+        </a>
 
-        @if(Secured.deleteFolder(folder)) {
+        <ul class="dropdown-menu nav-pills" role="menu" aria-labelledby="dropdownMenu">
+
             <li>
                 <a href="#confirmDeleteMedia@folder.id" data-toggle="modal">
                     <span class="glyphicon glyphicon-trash"></span><br>Löschen
                 </a>
             </li>
-        }
-    </ul>
-</div>
+        </ul>
+    </div>
+}

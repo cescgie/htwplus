@@ -4,8 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import java.io.File;
-
 import javax.persistence.*;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -15,7 +13,6 @@ import models.base.IJsonNodeSerializable;
 import models.enums.AccountRole;
 import models.enums.EmailNotifications;
 
-import models.services.FileService;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
@@ -193,11 +190,6 @@ public class Account extends BaseModel implements IJsonNodeSerializable {
 		String url = controllers.routes.Assets.at("images/avatars/" + this.avatar + ".png").toString();
 		return url;
 	}
-
-	public void setTempAvatar(File file) {
-		FileService fileService = FileService.getInstance();
-		fileService.saveFile(file);
-	}
 	
 	public static boolean isOwner(Long accountId, Account currentUser) {
 		Account a = JPA.em().find(Account.class, accountId);
@@ -269,6 +261,11 @@ public class Account extends BaseModel implements IJsonNodeSerializable {
 			bQuery.add(luceneQuery, BooleanClause.Occur.MUST);
 		}
 
+		
+		
+		
+		
+		
 		//Create a criteria because we just want to search for accounts
 		final Session session = fullTextEntityManager
 				.unwrap(org.hibernate.Session.class);
