@@ -2,10 +2,8 @@ package controllers;
 
 import models.*;
 import models.enums.EmailNotifications;
-import models.services.AvatarService;
 import play.Play;
 import play.data.Form;
-import play.mvc.Http.MultipartFormData;
 import play.db.jpa.Transactional;
 import play.mvc.Result;
 import play.mvc.Security;
@@ -14,9 +12,6 @@ import views.html.Profile.editPassword;
 import views.html.Profile.index;
 import views.html.Profile.stream;
 import controllers.Navigation.Level;
-import play.Logger;
-import play.libs.Json;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @Transactional
 @Security.Authenticated(Secured.class)
@@ -267,25 +262,5 @@ public class ProfileController extends BaseController {
 			flash("success", "Profil erfolgreich gespeichert.");
 			return redirect(controllers.routes.ProfileController.me());
 		}
-	}
-
-	public static Result uploadTempAvatar(Long id) {
-
-		Account currentUser = Component.currentAccount();
-
-		AvatarService avtService = AvatarService.getInstance();
-
-		MultipartFormData body = request().body().asMultipartFormData();
-		MultipartFormData.FilePart avatar = body.getFile("avatarimage");
-
-
-		currentUser.setTempAvatar(avatar.getFile());
-
-		Logger.info(avatar.getFilename());
-
-		ObjectNode result = Json.newObject();
-		result.put("exampleField1", "foobar");
-		result.put("exampleField2", "Hello world!");
-		return ok(result);
 	}
 }
