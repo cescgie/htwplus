@@ -1,8 +1,6 @@
 
 ;(function(){
 
-    var Dropzone;
-
     /**
      * Require the module at `name`.
      *
@@ -189,9 +187,9 @@
                     withCredentials: false,
                     parallelUploads: 2,
                     uploadMultiple: false,
-                    maxFilesize: 5,
+                    maxFilesize: 256,
                     paramName: "file",
-                    createImageThumbnails: false,
+                    createImageThumbnails: true,
                     maxThumbnailFilesize: 10,
                     thumbnailWidth: 100,
                     thumbnailHeight: 100,
@@ -206,7 +204,8 @@
                     addRemoveLinks: false,
                     previewsContainer: null,
                     capture: null,
-                    /*dictFallbackMessage: "Your browser does not support drag'n'drop file uploads.",
+                    dictDefaultMessage: "Drop files here to upload",
+                    dictFallbackMessage: "Your browser does not support drag'n'drop file uploads.",
                     dictFallbackText: "Please use the fallback form below to upload your files like in the olden days.",
                     dictFileTooBig: "File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.",
                     dictInvalidFileType: "You can't upload files of this type.",
@@ -215,7 +214,7 @@
                     dictCancelUploadConfirmation: "Are you sure you want to cancel this upload?",
                     dictRemoveFile: "Remove file",
                     dictRemoveFileConfirmation: null,
-                    dictMaxFilesExceeded: "You can not upload any more files.",*/
+                    dictMaxFilesExceeded: "You can not upload any more files.",
                     accept: function(file, done) {
                         return done();
                     },
@@ -469,6 +468,7 @@
                     var elementOptions, fallback, _ref;
                     this.element = element;
                     this.version = Dropzone.version;
+                    this.defaultOptions.previewTemplate = this.defaultOptions.previewTemplate.replace(/\n*/g, "");
                     this.clickableElements = [];
                     this.listeners = [];
                     this.files = [];

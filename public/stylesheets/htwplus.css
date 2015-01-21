@@ -840,3 +840,7 @@ input.hour-time {
 	border: 2px solid #76b900;
 	background: rgba(0,0,0,0.04);
 }
+
+.removeAllImages {
+	cursor:pointer;
+}
