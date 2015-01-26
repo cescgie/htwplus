@@ -41,7 +41,7 @@ public class MediaController extends BaseController {
 			if (media == null) {
 				return redirect(controllers.routes.Application.index());
 			} else {
-				response().setHeader("Content-disposition","attachment; filename=\""+ media.fileName + "\"");
+				response().setHeader("Content-disposition","inline; filename=\""+ media.fileName + "\"");
 				return ok(media.file);
 			}
     	} else {
@@ -49,6 +49,18 @@ public class MediaController extends BaseController {
     		return redirect(controllers.routes.Application.index());
      	}
     }
+	
+	public static String addColorboxClass(Long id) {
+		Media m = Media.findById(id);
+		String classString;
+		if (m.mimetype.startsWith("image")) {
+			classString = "class =\"colorboxImage\"";
+		}
+		else {
+			classString = "";
+		}
+		return classString;
+	}
 
 	public static String glyph(Long id){
 		Media m = Media.findById(id);
