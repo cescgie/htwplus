@@ -8,6 +8,7 @@
 			<th style="width:23px">
 				<input type="checkbox" rel="tooltip" data-original-title="alles aus-, abwählen" data-container="body" onclick="toggleMediaSelection(this)">
 			</th>
+			<th style="width: 20px">&nbsp;</th>
 			<th>Dateiname</th>
 			<th style="width:20%">Datum</th>
 			<th style="width:15%">Dateigröße</th>
@@ -20,6 +21,7 @@
 			@for(f <- folderList) {
 				<tr>
 					<td><input name="selection" value="@f.id" type="checkbox"></td>
+					<td><span class="glyphicon glyphicon-folder-open"></span></td>
 					<td><a href="@routes.FolderController.listFolder(f.group.id, f.id)">@f.name</a></td>
 					<td>@f.createdAt.format("dd.MM.yyyy")</td>
 					<td> - </td>
@@ -31,6 +33,7 @@
 			@for(m <- mediaList) {
 				<tr>
 					<td><input name="selection" value="@m.id" type="checkbox"></td>
+					<td>&nbsp;</td>
 					<td><a href="@routes.MediaController.view(m.id)" rel="tooltip" data-delay="500" data-original-title="von @m.owner.name">@m.title</a></td>
 					<td>@m.createdAt.format("dd.MM.yyyy")</td>
 					<td>@{MediaController.bytesToString(m.size, false)}</td>
