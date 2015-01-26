@@ -22,7 +22,7 @@
 		<tr>
 			<td><input name="selection" value="@m.id" type="checkbox"></td>
             <td><span class="glyphicon @{MediaController.glyph(m.id)}"></span></td>
-	        <td><a href="@routes.MediaController.view(m.id)" @{MediaController.addColorboxClass(m.id)} rel="tooltip" data-delay="500" data-original-title="von @m.owner.name">@m.title</a></td>
+	        <td><a href="@routes.MediaController.view(m.id)" class="@{MediaController.addColorboxClass(m.id)}" rel="tooltip" data-delay="500" data-original-title="von @m.owner.name">@m.title</a></td>
             <td><p class="size" data-dz-size></p>
                 <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
                     <div class="progress-bar progress-bar-success" style="width:0%;" data-dz-uploadprogress></div>

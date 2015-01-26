@@ -54,7 +54,7 @@ public class MediaController extends BaseController {
 		Media m = Media.findById(id);
 		String classString;
 		if (m.mimetype.startsWith("image")) {
-			classString = "class =\"colorboxImage\"";
+			classString = "colorboxImage";
 		}
 		else {
 			classString = "";
