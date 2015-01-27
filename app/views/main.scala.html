@@ -9,6 +9,7 @@
 		<link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/htwplus.css")">
 		<link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/bootstrap-prettyfile.css")">
 		<link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/dropzone.css")">
+		<link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/colorbox.css")">
 		<link rel="shortcut icon" type="image/png" id="dynamic-favicon" href="@routes.Assets.at("images/favicon.ico")">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -101,12 +102,20 @@
 		<script type="text/javascript" src="@routes.Assets.at("javascripts/jquery.linkify.min.js")"></script>
 		<script type="text/javascript" src="@routes.Assets.at("javascripts/htwplus.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/bootstrap-prettyfile.js")"></script>
-	<script type="text/javascript" src='@routes.Assets.at("javascripts/dropzone.js")'></script>
-	<script type="text/javascript" src='@routes.Assets.at("javascripts/mydropzone.js")'></script>
+		<script type="text/javascript" src='@routes.Assets.at("javascripts/dropzone.js")'></script>
+		<script type="text/javascript" src='@routes.Assets.at("javascripts/myDropzone.js")'></script>
+		<script type="text/javascript" src='@routes.Assets.at("javascripts/jquery.colorbox.js")'></script>
 
         @if(user != null){
             <script type="text/javascript" src="@routes.Assets.at("javascripts/notification.js")"></script>
         }
+
+		<script>
+			$(".colorboxImage").colorbox({rel:'colorboxImage'});
+			$(".colorboxVideo").colorbox();
+			$(".youtube").colorbox({iframe:true, innerWidth:640, innerHeight:390});
+			$(".vimeo").colorbox({iframe:true, innerWidth:500, innerHeight:409});
+		</script>
 
 	</body>
 </html>
