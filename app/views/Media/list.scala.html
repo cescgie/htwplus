@@ -15,6 +15,15 @@
            <th style="width:15%">Dateigröße</th>
            <th style="width:35px"></th>
        </tr>
+        <tr>
+            <td><input name="selection" value="test" type="checkbox"></td>
+            <td><span class="glyphicon glyphicon-picture"></span></td>
+            <td><a class="colorboxImage" title="Eule" href="https://plus.f4.htw-berlin.de/assets/images/Plusi/eule_unsicher.png">HardTest.png</a></td>
+            <td></td>
+            <td>01.01.1111</td>
+            <td>123</td>
+            <td></td>
+        </tr>
 	</thead>
     @form(action = routes.MediaController.multiView(target,id)) {
     <tbody id="mediaList" class="hp-optionsTable">
@@ -22,7 +31,7 @@
 		<tr>
 			<td><input name="selection" value="@m.id" type="checkbox"></td>
             <td><span class="glyphicon @{MediaController.glyph(m.id)}"></span></td>
-	        <td><a href="@routes.MediaController.view(m.id)" class="@{MediaController.addColorboxClass(m.id)}" rel="tooltip" data-delay="500" data-original-title="von @m.owner.name">@m.title</a></td>
+	        <td><a href="@{MediaController.setPdfViewer(m.id)}@routes.MediaController.view(m.id)" class="@{MediaController.addColorboxClass(m.id)}" rel="tooltip" data-delay="500" data-original-title="von @m.owner.name">@m.title</a></td>
             <td><p class="size" data-dz-size></p>
                 <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
                     <div class="progress-bar progress-bar-success" style="width:0%;" data-dz-uploadprogress></div>

@@ -41,6 +41,7 @@ public class MediaController extends BaseController {
 			if (media == null) {
 				return redirect(controllers.routes.Application.index());
 			} else {
+				Logger.info("File found, filename = " + media.fileName + " filetype = " + media.mimetype + " filepath = " + media.url);
 				response().setHeader("Content-disposition","inline; filename=\""+ media.fileName + "\"");
 				return ok(media.file);
 			}
@@ -49,7 +50,21 @@ public class MediaController extends BaseController {
     		return redirect(controllers.routes.Application.index());
      	}
     }
-	
+
+	public static String setPdfViewer(Long id) {
+		Media m = Media.findById(id);
+		String pdfPath;
+
+		if (m.fileName.endsWith(".pdf")) {
+			pdfPath = "/assets/pdfjs/viewer.html?file=";
+		}
+		else {
+			pdfPath = "";
+		}
+
+		return pdfPath;
+	}
+
 	public static String addColorboxClass(Long id) {
 		Media m = Media.findById(id);
 		String classString;

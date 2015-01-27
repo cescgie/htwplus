@@ -102,9 +102,9 @@
 		<script type="text/javascript" src="@routes.Assets.at("javascripts/jquery.linkify.min.js")"></script>
 		<script type="text/javascript" src="@routes.Assets.at("javascripts/htwplus.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/bootstrap-prettyfile.js")"></script>
-		<script type="text/javascript" src='@routes.Assets.at("javascripts/dropzone.js")'></script>
-		<script type="text/javascript" src='@routes.Assets.at("javascripts/mydropzone.js")'></script>
-		<script type="text/javascript" src='@routes.Assets.at("javascripts/jquery.colorbox.js")'></script>
+		<script type="text/javascript" src="@routes.Assets.at("javascripts/dropzone.js")"></script>
+		<script type="text/javascript" src="@routes.Assets.at("javascripts/mydropzone.js")"></script>
+		<script type="text/javascript" src="@routes.Assets.at("javascripts/jquery.colorbox.js")"></script>
 
         @if(user != null){
             <script type="text/javascript" src="@routes.Assets.at("javascripts/notification.js")"></script>
@@ -112,7 +112,7 @@
 
 		<script>
 			$(".colorboxImage").colorbox({rel:'colorboxImage'});
-			$(".colorboxVideo").colorbox();
+			$(".colorboxAjax").colorbox();
 			$(".youtube").colorbox({iframe:true, innerWidth:640, innerHeight:390});
 			$(".vimeo").colorbox({iframe:true, innerWidth:500, innerHeight:409});
 		</script>
