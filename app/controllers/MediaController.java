@@ -297,7 +297,7 @@ public class MediaController extends BaseController {
 			flash("success", "Datei(en) erfolgreich hinzugefügt.");
 		    return redirect(ret);
 		} else {
-			/*flash("error", "Etwas ist schiefgegangen. Bitte probiere es noch einmal!");*/
+			flash("error", "Etwas ist schiefgegangen. Bitte probiere es noch einmal!");
 		    return redirect(ret);  
 		}
     }

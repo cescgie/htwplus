@@ -844,3 +844,7 @@ input.hour-time {
 .removeAllImages {
 	cursor:pointer;
 }
+
+#fortschrittsspalte{
+	display: none;
+}
