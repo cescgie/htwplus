@@ -61,7 +61,7 @@ $(".hp-optionsTable>tr").bind("contextmenu", function (e) {
     e.preventDefault();
     $(this).find('.hp-optionsMenu .dropdown-toggle').trigger("click");
 });
-
+/*
 $(".hp-optionsTable>tr>td:not(.hp-optionsMenu)").on("click", function(e) {
     e.preventDefault();
     $(this).parent().trigger('contextmenu');
@@ -77,7 +77,7 @@ $(".hp-optionsTable>tr>td>input").on("click", function(e) {
     // checkbox in media list
     e.stopPropagation();
 });
-
+*/
 
 
 $(document).ready(function () {

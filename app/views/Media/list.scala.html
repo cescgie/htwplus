@@ -18,14 +18,6 @@
 	</thead>
     @form(action = routes.MediaController.multiView(target,id)) {
     <tbody id="mediaList" class="hp-optionsTable">
-        <tr>
-            <td></td>
-            <td><span class="glyphicon glyphicon-picture"></span></td>
-            <td><a class="colorboxImage" title="Eule" href="https://plus.f4.htw-berlin.de/assets/images/Plusi/eule_unsicher.png">HardTest.png</a></td>
-            <td>01.01.1111</td>
-            <td>123</td>
-            <td></td>
-        </tr>
 		@for(m <- mediaList) {
 		<tr>
 			<td><input name="selection" value="@m.id" type="checkbox"></td>
