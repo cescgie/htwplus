@@ -56,13 +56,15 @@ Dropzone.options.fileuploadForm = {
     previewTemplate: '<div class="dz-preview dz-file-preview">' +
     '<div class="dz-filename"><span data-dz-name></span></div>' +
     '<div class="dz-size" data-dz-size></div>' +
-    //'<div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress></span></div>' +
+    '<div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress></span></div>' +
     '<div> <button data-dz-remove>Entfernen</button></div>' +
     '</div>',
     paramName: "file",
     maxFilesize: 256,
     uploadMultiple: true,
     parallelUploads: 10,
-    autoProcessQueue: false
+    autoProcessQueue: false,
+    dictDefaultMessage: "Hier klicken oder Hineinziehen um Dateien hochzuladen"
+
 };
 var myDropzone = new Dropzone(".dropzone");

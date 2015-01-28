@@ -4,19 +4,18 @@
 
 <h4>Neue Dateien hochladen <div class="loading" id="loadingMedia"></div></h4>
 @*<button id="submit-all">Submit all files</button>*@
-@form(action = routes.MediaController.upload(target, id), 'class -> "dropzone", 'enctype -> "multipart/form-data", 'id -> "fileuploadForm") {
+
 <div class="form-group">
-			<div class="prettyFile input-group">
-				<input type="file" name="form[files][]" multiple>
-				<div class="input-group" >
-					<input class="form-control" type="text" name="file" placeholder="Anklicken oder Hineinziehen um Dateien hochzuladen" multiple>
-					<span class="input-group-btn">
-						<button type="button" id ="send-button" class="btn btn-warning">Senden</button>
-					</span>
-				</div>
+	<div class="input-group" >
+@form(action = routes.MediaController.upload(target, id), 'class -> "dropzone", 'enctype -> "multipart/form-data", 'id -> "fileuploadForm") {
+
+	<div class="dz-message">Hier klicken oder Hineinziehen um Dateien hochzuladen</div>
+}
+		<span class="input-group-btn">
+			<button type="button" id ="send-button" class="btn btn-warning">Senden</button>
+		</span>
 	</div>
 </div>
-}
 
 <small><i>Max. @Play.application().configuration().getInt("media.maxSize.file") MByte pro Datei & @Play.application().configuration().getInt("media.maxSize.total") MByte pro Upload möglich.</i></small>
 

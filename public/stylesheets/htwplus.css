@@ -845,6 +845,7 @@ input.hour-time {
 	cursor:pointer;
 }
 
-#fortschrittsspalte{
-	display: none;
+
+#send-button {
+	vertical-align: bottom important!;
 }
