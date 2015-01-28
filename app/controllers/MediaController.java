@@ -41,6 +41,7 @@ public class MediaController extends BaseController {
 			if (media == null) {
 				return redirect(controllers.routes.Application.index());
 			} else {
+				Logger.info("File found, filename = " + media.fileName + " filetype = " + media.mimetype + " filepath = " + media.url + " file = " + media.file);
 				response().setHeader("Content-disposition","inline; filename=\""+ media.fileName + "\"");
 				return ok(media.file);
 			}
@@ -49,7 +50,21 @@ public class MediaController extends BaseController {
     		return redirect(controllers.routes.Application.index());
      	}
     }
-	
+
+	public static String setPdfViewer(Long id) {
+		Media m = Media.findById(id);
+		String pdfPath;
+
+		if (m.fileName.endsWith(".pdf")) {
+			pdfPath = "/assets/pdfjs/viewer.html?file=";
+		}
+		else {
+			pdfPath = "";
+		}
+
+		return pdfPath;
+	}
+
 	public static String addColorboxClass(Long id) {
 		Media m = Media.findById(id);
 		String classString;
@@ -66,6 +81,9 @@ public class MediaController extends BaseController {
 		Media m = Media.findById(id);
 		String glyphicon = "glyphicon-file";
 		String mime = m.mimetype;
+		if(mime.endsWith("pdf")) {
+			glyphicon = "glyphicon-eye-open";
+		}
 		if(mime.startsWith("text"))
 		{
 			glyphicon = "glyphicon-align-justify";
@@ -278,8 +296,14 @@ public class MediaController extends BaseController {
 				
 				Media med = new Media();
 				med.title = upload.getFilename();
-				med.mimetype = upload.getContentType();
 				med.fileName = upload.getFilename();
+				// added this code snippet for fixing the upload bug from firefox where pdf file has the mime typ "application/binary or other
+				if (med.fileName.endsWith(".pdf")) {
+					med.mimetype = "application/pdf";
+				}
+				else {
+					med.mimetype = upload.getContentType();
+				}
 				med.file = upload.getFile();				
 				med.owner = Component.currentAccount();
 				
@@ -309,7 +333,7 @@ public class MediaController extends BaseController {
 			flash("success", "Datei(en) erfolgreich hinzugefügt.");
 		    return redirect(ret);
 		} else {
-			flash("error", "Etwas ist schiefgegangen. Bitte probiere es noch einmal!");
+			flash("error", "Etwas ist schiefgegangen. Bitte probiere es noch einmal! Dropzone geht aber...");
 		    return redirect(ret);  
 		}
     }

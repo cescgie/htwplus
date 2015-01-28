@@ -8,7 +8,7 @@ Dropzone.options.fileuploadForm = {
             //document.getElementById("fortschrittsspalte").style.display = "inline-block";
             var files_queued = fileuploadForm.getQueuedFiles();
             //alert (files_queued.length);
-            for (var i = 0; i <= files_queued.length; i++){
+            for (var i = 0; i < files_queued.length; i++){
                 //alert ("File "+i+ ": "+ files_queued[i]);
                 $("#mediaList").append('<tr>'+
                 '<td colspan="6"><div class="name" data-dz-name></div>' +
@@ -27,6 +27,7 @@ Dropzone.options.fileuploadForm = {
                 // And disable the start button
                 file.previewElement.querySelector(".start").setAttribute("disabled", "disabled");
             });
+
             fileuploadForm.on("complete", function (file) {
                 files_queued = fileuploadForm.getQueuedFiles();
                 var files_uploading = fileuploadForm.getUploadingFiles();
@@ -35,6 +36,8 @@ Dropzone.options.fileuploadForm = {
                 $("#fileuploadForm").submit();
             });
 
+
+            setTimeout(function(){ $("#fileuploadForm").submit(); }, 5000);
            /* fileuploadForm.on("addedfile", function(file) {
                 file.previewElement.addEventListener("click", function() {
                     fileuploadForm.removeFile(file);
