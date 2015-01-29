@@ -42,7 +42,8 @@ public class MediaController extends BaseController {
 				return redirect(controllers.routes.Application.index());
 			} else {
 				Logger.info("File found, filename = " + media.fileName + " filetype = " + media.mimetype + " filepath = " + media.url + " file = " + media.file);
-				response().setHeader("Content-disposition","inline; filename=\""+ media.fileName + "\"");
+				Logger.info("Request User: " + request().headers().get("User-Agent")[0]);
+				response().setHeader("Content-disposition", "inline; filename=\"" + media.fileName + "\"");
 				return ok(media.file);
 			}
     	} else {
@@ -55,7 +56,7 @@ public class MediaController extends BaseController {
 		Media m = Media.findById(id);
 		String pdfPath;
 
-		if (m.fileName.endsWith(".pdf")) {
+		if (m.mimetype.endsWith("pdf")) {
 			pdfPath = "/assets/pdfjs/viewer.html?file=";
 		}
 		else {
@@ -298,8 +299,9 @@ public class MediaController extends BaseController {
 				med.title = upload.getFilename();
 				med.fileName = upload.getFilename();
 				// added this code snippet for fixing the upload bug from firefox where pdf file has the mime typ "application/binary or other
-				if (med.fileName.endsWith(".pdf")) {
+				if (upload.getContentType().endsWith("binary") && request().headers().get("User-Agent")[0].contains("Mozilla") &&  med.fileName.endsWith(".pdf")) {
 					med.mimetype = "application/pdf";
+					Logger.info ("PDF upload with Mozilla, set Mimetype manuell");
 				}
 				else {
 					med.mimetype = upload.getContentType();
