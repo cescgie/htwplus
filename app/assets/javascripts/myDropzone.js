@@ -28,29 +28,12 @@ Dropzone.options.fileuploadForm = {
                 file.previewElement.querySelector(".start").setAttribute("disabled", "disabled");
             });
 
-            fileuploadForm.on("complete", function (file) {
+            fileuploadForm.on("complete", function(file) {
                 files_queued = fileuploadForm.getQueuedFiles();
                 var files_uploading = fileuploadForm.getUploadingFiles();
                 alert("complete!");
-                document.getElementById("loadingMedia").style.display = "inline-block";
-                $("#fileuploadForm").submit();
             });
-
-
             setTimeout(function(){ $("#fileuploadForm").submit(); }, 5000);
-           /* fileuploadForm.on("addedfile", function(file) {
-                file.previewElement.addEventListener("click", function() {
-                    fileuploadForm.removeFile(file);
-                });
-            });
-
-            fileuploadForm.on("complete", function (file) {
-                files_queued = fileuploadForm.getQueuedFiles();
-                var files_uploading = fileuploadForm.getUploadingFiles();
-                fileuploadForm.removeFile(file);
-            });*/
-
-
         });
     },
     previewTemplate: '<div class="dz-preview dz-file-preview">' +
@@ -59,7 +42,7 @@ Dropzone.options.fileuploadForm = {
     '<div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress></span></div>' +
     '<div> <button data-dz-remove>Entfernen</button></div>' +
     '</div>',
-    paramName: "file",
+    paramName: "form[files][]",
     maxFilesize: 256,
     uploadMultiple: true,
     parallelUploads: 10,

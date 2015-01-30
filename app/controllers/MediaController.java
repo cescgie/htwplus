@@ -290,6 +290,7 @@ public class MediaController extends BaseController {
 
 		List<Media> mediaList = new ArrayList<Media>();
 		
+		if (!uploads.isEmpty()) {
 
 			
 			// Create the Media models and perform some checks
@@ -334,10 +335,10 @@ public class MediaController extends BaseController {
 			}
 			flash("success", "Datei(en) erfolgreich hinzugefügt.");
 		    return redirect(ret);
-		/*} else {
+		} else {
 			flash("error", "Etwas ist schiefgegangen. Bitte probiere es noch einmal! Dropzone geht aber...");
 		    return redirect(ret);  
-		}*/
+		}
     }
 	
 	public static String bytesToString(long bytes, boolean si) {

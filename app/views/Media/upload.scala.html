@@ -7,21 +7,13 @@
 
 <div class="form-group">
 	<div class="input-group" style="width: 100%;">
-		@form(action = routes.MediaController.upload(target, id), 'class -> "dropzone", 'enctype -> "multipart/form-data", 'id -> "fileuploadForm") {
-
+	@form(action = routes.MediaController.upload(target, id), 'class -> "dropzone", 'enctype -> "multipart/form-data", 'id -> "fileuploadForm") {
 		<div class="dz-message"><i>Hier klicken oder Hineinziehen um Dateien hochzuladen, dann mit Button bestätigen</i></div>
-
-}
-
+	}
 	</div>
-
-
-
 </div>
 
-<div class="input-group-btn">
-	<button type="button" id ="send-button" class="btn btn-warning btn-sm">Jetzt Hochladen</button>
-</div>
+<button type="button" id ="send-button" class="btn btn-warning btn-sm">Jetzt Hochladen</button>
 
 <div style="margin-top: 10px;"><small><i>Max. @Play.application().configuration().getInt("media.maxSize.file") MByte pro Datei & @Play.application().configuration().getInt("media.maxSize.total") MByte pro Upload möglich.</i></small></div>
 
