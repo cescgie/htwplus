@@ -254,7 +254,7 @@ public class MediaController extends BaseController {
     public static Result upload(String target, Long id) {
 	    final int maxTotalSize = Play.application().configuration().getInt("media.maxSize.total");
 	    final int maxFileSize = Play.application().configuration().getInt("media.maxSize.file");
-	    
+
 		Call ret = controllers.routes.Application.index();
 		Group group;
 
@@ -276,12 +276,14 @@ public class MediaController extends BaseController {
 		if (contentLength != null) {
 			int size = Integer.parseInt(contentLength[0]);
 			if(Media.byteAsMB(size) > maxTotalSize) {
-				flash("error", "Du darfst auf einmal nur " + maxTotalSize + " MB hochladen.");
-				return redirect(ret);
+				return ok("Du darfst auf einmal nur " + maxTotalSize + " MB hochladen.");
+				/*flash("error", "Du darfst auf einmal nur " + maxTotalSize + " MB hochladen.");
+				return redirect(ret);*/
 			}
 		} else {
-			flash("error", "Etwas ist schiefgegangen. Bitte probiere es noch einmal!");
-		    return redirect(ret);  	
+			return ok("Etwas ist schiefgegangen. Bitte probiere es noch einmal!");
+			/*flash("error", "Etwas ist schiefgegangen. Bitte probiere es noch einmal!");
+		    return redirect(ret); */
 		}
 		
 		// Get the data
@@ -311,16 +313,17 @@ public class MediaController extends BaseController {
 				med.owner = Component.currentAccount();
 				
 				if (Media.byteAsMB(med.file.length()) > maxFileSize) {
-					flash("error", "Die Datei " + med.title + " ist größer als " + maxFileSize + " MB!");
-					return redirect(ret);
+					return ok("Die Datei " + med.title + " ist größer als " + maxFileSize + " MB!");
+					/*flash("error", "Die Datei " + med.title + " ist größer als " + maxFileSize + " MB!");
+					return redirect(ret);*/
 				}
-				
-				String error = "Eine Datei mit dem Namen " + med.title + " existiert bereits";
+
 				if(target.equals(Media.GROUP)) {
 					med.group = group;
-					if(med.existsInGroup(group)){
-						flash("error", error);
-						return redirect(ret);
+					if (med.existsInGroup(group)) {
+						//flash("error", error);
+						return ok("Eine Datei mit dem Namen " + med.title + " existiert bereits");
+						//return redirect(ret);
 					}
 				} 				
 				mediaList.add(med);
@@ -333,8 +336,9 @@ public class MediaController extends BaseController {
 					return internalServerError(e.getMessage());
 				}
 			}
-			flash("success", "Datei(en) erfolgreich hinzugefügt.");
-		    return redirect(ret);
+			//flash("success", "");
+			return ok("Datei(en) erfolgreich hinzugefügt.");
+		    //return redirect(ret);
 		} else {
 			flash("error", "Etwas ist schiefgegangen. Bitte probiere es noch einmal! Dropzone geht aber...");
 		    return redirect(ret);  

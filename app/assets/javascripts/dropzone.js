@@ -1410,6 +1410,7 @@
                     }
                     if (this.options.uploadMultiple) {
                         this.emit("successmultiple", files, responseText, e);
+                        this.setLastMessage(responseText);
                         this.emit("completemultiple", files);
                     }
                     if (this.options.autoProcessQueue) {
@@ -1427,11 +1428,21 @@
                     }
                     if (this.options.uploadMultiple) {
                         this.emit("errormultiple", files, message, xhr);
+                        this.setLastMessage(message);
                         this.emit("completemultiple", files);
                     }
                     if (this.options.autoProcessQueue) {
                         return this.processQueue();
                     }
+                };
+
+
+                Dropzone.prototype.getLastMessage = function() {
+                    return lastMessage;
+                };
+
+                Dropzone.prototype.setLastMessage = function(str) {
+                    lastMessage = str;
                 };
 
                 return Dropzone;
