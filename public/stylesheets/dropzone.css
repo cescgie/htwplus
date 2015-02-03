@@ -37,7 +37,9 @@
     margin: 17px;
     vertical-align: top;
     border: 1px solid #acacac;
+    border-radius: 5px;
     padding: 6px 6px 6px 6px;
+    text-align: center;
 }
 .dropzone .dz-preview.dz-file-preview [data-dz-thumbnail],
 .dropzone-previews .dz-preview.dz-file-preview [data-dz-thumbnail] {
@@ -188,7 +190,7 @@
 .dropzone-previews .dz-preview {
     -webkit-box-shadow: 1px 1px 4px rgba(0,0,0,0.16);
     box-shadow: 1px 1px 4px rgba(0,0,0,0.16);
-    font-size: 14px;
+    font-size: 0.9em;
 }
 .dropzone .dz-preview.dz-image-preview:hover .dz-details img,
 .dropzone-previews .dz-preview.dz-image-preview:hover .dz-details img {

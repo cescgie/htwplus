@@ -35,7 +35,7 @@ public class MediaController extends BaseController {
 	final static String tempPrefix = "htwplus_temp";
 	
     @Transactional(readOnly=true)	
-    public static Result view(Long id) {
+    public static Result view(Long id, String keyword) {
     	Media media = Media.findById(id);
     	if(Secured.viewMedia(media)) {
 			if (media == null) {
@@ -43,7 +43,12 @@ public class MediaController extends BaseController {
 			} else {
 				Logger.info("File found, filename = " + media.fileName + " filetype = " + media.mimetype + " filepath = " + media.url + " file = " + media.file);
 				Logger.info("Request User: " + request().headers().get("User-Agent")[0]);
-				response().setHeader("Content-disposition", "inline; filename=\"" + media.fileName + "\"");
+				if (keyword.equals("download")) {
+					response().setHeader("Content-disposition", "attachment; filename=\"" + media.fileName + "\"");
+				}
+				else {
+					response().setHeader("Content-disposition", "inline; filename=\"" + media.fileName + "\"");
+				}
 				return ok(media.file);
 			}
     	} else {
@@ -83,7 +88,7 @@ public class MediaController extends BaseController {
 		String glyphicon = "glyphicon-file";
 		String mime = m.mimetype;
 		if(mime.endsWith("pdf")) {
-			glyphicon = "glyphicon-eye-open";
+			glyphicon = "glyphicon glyphicon-align-center";
 		}
 		if(mime.startsWith("text"))
 		{
