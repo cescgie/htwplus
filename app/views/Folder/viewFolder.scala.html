@@ -22,6 +22,12 @@
     </div>
     <!-- End confirmDeleteGroupModal -->
 
+    <!-- Start confirmCreateFolderModal -->
+    <div id="confirmCreateFolder" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    @views.html.Folder.snippets.createFolderModal(folder)
+    </div>
+    <!-- End confirmCreateFolderModal -->
+
     @views.html.Group.snippets.navTabs(folder.group,folder)
 
     <div class="clear">
@@ -33,13 +39,17 @@
         </h2>
 
         @for(p <- path) {
-            <a href="@routes.FolderController.listFolder(p.group.id, p.id)">@p.name</a> /
+            @if(p.depth == 1) {
+                <a href="@routes.FolderController.listFolder(p.group.id, p.id)"><span class="glyphicon glyphicon-folder-open"></span></a> /
+            } else {
+                <a href="@routes.FolderController.listFolder(p.group.id, p.id)">@p.name</a> /
+            }
         }
         <br /><br />
 
 
         @if(!folder.childs.isEmpty || !folder.files.isEmpty) {
-            @views.html.Folder.listAll(folder.childs,folder.files,models.Media.GROUP,folder.id,folder.group.id)
+            @views.html.Folder.listAll(folder.childs,folder.files,folder)
         } else {
             <br />
             @if(folder.depth < FolderController.DEPTH) {
@@ -48,23 +58,10 @@
                 <i>Es wurden noch keine Datei hochgeladen.</i>
             }
             <br />
-        }
-
-
-        @if(folder.depth < FolderController.DEPTH) {
-            @form(routes.FolderController.createFolder(folder.group.id,folder.id)) {
-                <h4>Neuen Ordner erstellen</h4>
-                <div class="controls">
-                    <div class="input-group" rel="tooltip" data-original-title="Hier klicken, um Dateien auszuwählen!" data-placement="bottom" data-delay="500" data-container="body">
-                        <input class="form-control" type="text"name="name" placeholder="Ordner Name" />
-                        <span class="input-group-btn">
-                            <button type="submit" class="btn">Erstellen</button>
-                        </span>
-                    </div>
-                </div>
-            }
             <br />
+            <input  href="#confirmCreateFolder" data-toggle="modal" class="btn btn-warning btn-sm" value="Ordner erstellen">
         }
+
         @if(Secured.uploadMedia(folder.group)) {
             @views.html.Media.upload(mediaForm,folder.group.id,folder.id)
         }

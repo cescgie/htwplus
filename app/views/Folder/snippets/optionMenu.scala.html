@@ -22,6 +22,15 @@
                     <span class="glyphicon glyphicon-trash"></span><br>Löschen
                 </a>
             </li>
+            <li>
+                <a href="#confirmRenameFolder@folder.id" data-toggle="modal">
+                    <span class="glyphicon glyphicon-pencil"></span><br>Umbennenen
+                </a>
+            </li>
+            <li><a href="@routes.FolderController.singleDownload(folder.group.id,folder.id)" data-toggle="modal" methods="post">
+                <span class="glyphicon glyphicon-download"></span><br>Herunterladen
+            </a></li>
+
         </ul>
     </div>
 }

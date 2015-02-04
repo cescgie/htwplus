@@ -1,0 +1,26 @@
+@(folder: Folder)
+@import helper._
+@import models._
+
+<div class="modal-dialog">
+	<div class="modal-content">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			<h4 class="modal-title" id="confirmModalLabel">Ordner erstellen</h4>
+		</div>
+		<div class="modal-body">
+		@form(routes.FolderController.createFolder(folder.group.id,folder.id)) {
+			<div class="controls">
+				<div class="input-group" rel="tooltip" data-original-title="Hier Namen für neuen Ordner eingeben!" data-placement="bottom" data-delay="500" data-container="body">
+					<input class="form-control" type="text"name="name" autofocus="autofocus" placeholder="Ordner Name">
+					<span class="input-group-btn">
+						<button type="submit" class="btn btn-warning">Erstellen</button>
+					</span>
+				</div>
+			</div>
+		}
+		</div>
+		<div class="modal-footer">
+		</div>
+	</div>
+</div>

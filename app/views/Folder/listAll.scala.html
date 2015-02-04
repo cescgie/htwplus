@@ -1,22 +1,30 @@
-@(folderList:List[Folder], mediaList:List[Media], target:String, fId:Long, gId:Long)
+@(folderList:List[Folder], mediaList:List[Media], folder:Folder)
 @import helper._
 @import models._
+
+	<!-- Start confirmRenameMediaModal -->
+	@for(f <- folderList) {
+		<div class="modal fade" id="confirmRenameFolder@f.id" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+			@views.html.Folder.snippets.renameFolderModal(f)
+		</div>
+	}
+	<!-- End confirmRenameMediaModal -->
 
 <table class="table table-hover table-condensed">
 	<thead>
 		<tr>
-			<th style="width:23px">
+			<th id="auswahl" style="width:23px">
 				<input type="checkbox" rel="tooltip" data-original-title="alles aus-, abwählen" data-container="body" onclick="toggleMediaSelection(this)">
 			</th>
-			<th style="width: 20px">&nbsp;</th>
-			<th>Dateiname</th>
-			<th style="width:20%">Datum</th>
-			<th style="width:15%">Dateigröße</th>
-			<th style="width:35px"></th>
+			<th id="icon" style="width:20px">&nbsp;</th>
+			<th id="dateiname">Dateiname</th>
+			<th id="datum" style="width:20%">Datum</th>
+			<th id="dateigröße" style="width:15%">Dateigröße</th>
+			<th id="optionen" style="width:35px"></th>
 		</tr>
 	</thead>
 
-	@form(action = routes.FolderController.multiView(gId,fId)) {
+	@form(action = routes.FolderController.multiView(folder.group.id,folder.id)) {
 		<tbody id="mediaList" class="hp-optionsTable">
 			@for(f <- folderList) {
 				<tr>
@@ -45,8 +53,11 @@
 		</tbody>
 		<tfoot>
 			<tr>
-				<td colspan="5">
-					<input type="submit" class="btn btn-warning btn-sm" value="Auswahl herunterladen">
+				<td colspan="3">
+					<input id="aH_iput" type="submit" class="btn btn-warning btn-sm" value="Auswahl herunterladen">
+					@if(folder.depth < FolderController.DEPTH) {
+						<input type="button" href="#confirmCreateFolder" data-toggle="modal" class="btn btn-warning btn-sm" value="Ordner erstellen">
+						}
 				</td>
 			</tr>
 		</tfoot>

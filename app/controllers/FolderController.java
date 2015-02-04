@@ -62,12 +62,18 @@ public class FolderController extends BaseController {
         }
     }
 
-    public static Result renameFolder(String argName, Folder folder) {
-        if (allowToCreate(argName,folder.parent)) {
-            folder.name = argName;
-            return listFolder(folder.parent.group.id, folder.parent.id);
+    public static Result renameFolder(Long groupId, Long folderId) {
+        Folder folder = Folder.findById(folderId);
+        Group group = Group.findById(groupId);
+
+        Form<Folder> filledForm = folderForm.bindFromRequest();
+        String name = filledForm.data().get("name");
+
+        if (allowToCreate(name,folder.parent)) {
+            folder.name = name;
+            return listFolder(group.id, folder.parent.id);
         } else {
-            flash("error", "Den Namen können Sie nicht vergeben.");
+            flash("error", "Ein Ordner mit diesem Namen existiert bereits!");
             return listFolder(folder.parent.group.id, folder.parent.id);
         }
     }
@@ -98,9 +104,6 @@ public class FolderController extends BaseController {
             Logger.debug("show Folder with ID:" + folderID);
             Navigation.set(Navigation.Level.GROUPS, "Media", groupFolder.group.title, controllers.routes.GroupController.view(groupFolder.group.id, PAGE));
             return ok(views.html.Folder.viewFolder.render(path, folder, folderForm, mediaForm));
-//        } else if(Secured.viewFolder(folder) && groupID != folder.group.id) {
-//            flash("success", "Aufgrund eines Ordnerwechsel wurde die Gruppenansicht gewechselt!");
-//            return redirect(controllers.routes.FolderController.listFolder(folder.group.id, folder.id));
         } else {
             flash("error", "Für den Zugang zu diesem Ordner hast du keine Berechtigung!");
             return redirect(controllers.routes.Application.index());
@@ -127,17 +130,23 @@ public class FolderController extends BaseController {
         Folder parent = folder.parent;
         if(Secured.deleteFolder(folder) && groupID == folder.group.id) {
             Logger.debug("Delete Folder[" + folder.id + "]...");
-            for (Media file : folder.files) {
-                file.delete();
-                Logger.debug("File [" + file.id + "] deleted");
-            }
-            folder.delete();
+            deleteFolderContent(folder);
             Logger.debug("Folder[" + folder.id + "] -> deleted");
-            return redirect(controllers.routes.FolderController.listFolder(groupID, parent.id));
         } else {
             flash("error", "Dazu hast du keine Berechtigung!");
-            return redirect(controllers.routes.FolderController.listFolder(groupID, parent.id));
         }
+        flash("success", "Der Ordner wurde erfolgreich gelöscht");
+        return redirect(controllers.routes.FolderController.listFolder(groupID, parent.id));
+    }
+
+    private static void deleteFolderContent(Folder folder){
+        for (Media m: folder.files) {
+            m.delete();
+        }
+        for (Folder f: folder.childs) {
+            deleteFolderContent(f);
+        }
+        folder.delete();
     }
 
     public static Folder createGroupFolder(Group group) {
@@ -162,18 +171,10 @@ public class FolderController extends BaseController {
             try {
                 groupFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, group.id).getSingleResult();
             } catch (NoResultException e) {
-                Folder rootFolder = getRootFolder();
-                Logger.debug("Create Group Folder...");
-                groupFolder = new Folder();
-                groupFolder.name = group.title;
-                groupFolder.depth = rootFolder.depth + 1;
-                groupFolder.parent = rootFolder;
-                groupFolder.group = group;
-                groupFolder.create();
-                Logger.debug("Group Folder -> created");
+                // catch to create Groupfolder if not exists ! For old Projekt !!
+                createGroupFolder(group);
             }
         }
-
         return groupFolder;
     }
 
@@ -182,6 +183,7 @@ public class FolderController extends BaseController {
         try {
             rootFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT).getSingleResult();
         } catch (NoResultException e) {
+            // catch to create Rootfolder if not exist ! For old Projekt !!
             Logger.debug("Create Root Folder...");
             rootFolder = new Folder();
             rootFolder.name = "root";
@@ -191,7 +193,6 @@ public class FolderController extends BaseController {
             rootFolder.create();
             Logger.debug("Root Folder -> created");
         }
-
         return rootFolder;
     }
 
@@ -199,9 +200,33 @@ public class FolderController extends BaseController {
         return redirect("/group/" + groupID + "/folder/" + folderID);
     }
 
+    @Transactional(readOnly=true)
+    public static Result singleDownload(Long gID, Long fID) throws IOException {
+        Logger.debug("use multiView");
+        Group group = Group.findById(gID);
+        Logger.debug("Group[" + group.id + "]");
+        if(!Secured.viewGroup(group)){
+            Logger.debug("Secured.viewGroup: false");
+            return redirect(controllers.routes.Application.index());
+        }
+        String tmpPath = Play.application().configuration().getString("media.tempPath");
+        File file = File.createTempFile(tempPrefix, ".tmp", new File(tmpPath));
+        ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(file));
+        zipOut.setLevel(Deflater.NO_COMPRESSION);
+        Folder folder = Folder.findById(fID);
+        addFolder2Zip("", folder, zipOut);
+        zipOut.flush();
+        zipOut.close();
+        String filename = folder.name + ".zip";
+        Logger.debug(filename + " created");
+        response().setHeader("Content-disposition", "attachment; filename=\"" + filename + "\"");
+        Logger.debug("return ok(file)");
+        return ok(file);
+    }
 
     @Transactional(readOnly=true)
     public static Result multiView(Long gID, Long fID) throws IOException {
+
         Logger.debug("use multiView");
         Group group = Group.findById(gID);
         Logger.debug("Group[" + group.id + "]");
@@ -227,10 +252,10 @@ public class FolderController extends BaseController {
                 Folder folder = Folder.findById(Long.parseLong(s));
                 if (media != null) {
                     selectionHasFiles = false;
-                    addFile2Zipp(media,filePath,zipOut);
+                    addFile2Zip(media,filePath,zipOut);
                 } else {
                     selectetFolder = folder.name;
-                    addFolder2Zipp(filePath, folder, zipOut);
+                    addFolder2Zip(filePath, folder, zipOut);
                 }
             }
         } else {
@@ -248,7 +273,7 @@ public class FolderController extends BaseController {
         return ok(file);
     }
 
-    private static void addFile2Zipp(Media media, String filePath, ZipOutputStream zipOut) throws IOException{
+    private static void addFile2Zip(Media media, String filePath, ZipOutputStream zipOut) throws IOException{
         Logger.debug("add Filename: " + media.file.getName());
         byte[] buffer = new byte[4092];
         int byteCount = 0;
@@ -262,7 +287,7 @@ public class FolderController extends BaseController {
         zipOut.closeEntry();
     }
 
-    private static void addFolder2Zipp(String filePath, Folder folder, ZipOutputStream zipOut) throws IOException{
+    private static void addFolder2Zip(String filePath, Folder folder, ZipOutputStream zipOut) throws IOException{
         Logger.debug("add Folder: " + folder.name);
         filePath = filePath + folder.name + "/";
         zipOut.putNextEntry(new ZipEntry(filePath));
@@ -271,13 +296,13 @@ public class FolderController extends BaseController {
         if(!folder.files.isEmpty()) {
             for (Media m : folder.files) {
                 Media media = Media.findById(m.id);
-                addFile2Zipp(media, filePath, zipOut);
+                addFile2Zip(media, filePath, zipOut);
             }
         }
 
         if(!folder.childs.isEmpty()) {
             for (Folder f : folder.childs) {
-                addFolder2Zipp(filePath, f, zipOut);
+                addFolder2Zip(filePath, f, zipOut);
             }
         }
     }
