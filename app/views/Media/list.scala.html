@@ -2,16 +2,18 @@
 @import helper._
 @import models._
 
-<table class="table table-hover table-condensed">
+<table class="table table-hover table-condensed" id="tabellenliste">
 	<thead>
        <tr>
-		   <th style="width:23px">
+		   <th id="auswahl" style="width:23px">
                <input type="checkbox" rel="tooltip" data-original-title="alles aus-, abwählen" data-container="body" onclick="toggleMediaSelection(this)">
            </th>
-           <th>Dateiname</th>
-           <th style="width:20%">Datum</th>
-           <th style="width:15%">Dateigröße</th>
-           <th style="width:35px"></th>
+           <th id="icon" style="width:20px">&nbsp;</th>
+           <th id="dateiname">Dateiname</th>
+           <th id="fortschrittsspalte">Fortschritt</th>
+           <th id="datum" style="width:20%">Datum</th>
+           <th id="dateigröße" style="width:15%">Dateigröße</th>
+           <th id="optionen" style="width:35px"></th>
        </tr>
 	</thead>
     @form(action = routes.MediaController.multiView(target,id)) {
@@ -19,8 +21,9 @@
 		@for(m <- mediaList) {
 		<tr>
 			<td><input name="selection" value="@m.id" type="checkbox"></td>
-	        <td><a href="@routes.MediaController.view(m.id)" rel="tooltip" data-delay="500" data-original-title="von @m.owner.name">@m.title</a></td>
-	        <td>@m.createdAt.format("dd.MM.yyyy")</td>
+            <td><span class="glyphicon @{MediaController.glyph(m.id)}"></span></td>
+            <td><a href="@{MediaController.setPdfViewer(m.id)}@routes.MediaController.view(m.id, "view")" class="@{MediaController.addColorboxClass(m.id)}" rel="tooltip" data-delay="500" data-original-title="von @m.owner.name">@m.title</a></td>
+            <td>@m.createdAt.format("dd.MM.yyyy")</td>
 	        <td>@{MediaController.bytesToString(m.size, false)}</td>
 	        <td class="hp-optionsMenu">
                 @views.html.Media.snippets.optionMenu(m)
@@ -30,7 +33,7 @@
     </tbody>
     <tfoot>
         <tr>
-            <td colspan="5">
+            <td colspan="6">
             	<input type="submit" class="btn btn-warning btn-sm" value="Auswahl herunterladen">
             </td>
         </tr>

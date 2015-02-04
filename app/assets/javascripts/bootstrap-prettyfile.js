@@ -1,4 +1,5 @@
 // Pretty file
+
 if ($('.prettyFile').length) {
     $('.prettyFile').each(function () {
         var pF = $(this),

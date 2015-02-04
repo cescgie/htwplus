@@ -36,7 +36,7 @@ public class MediaController extends BaseController {
 	final static String tempPrefix = "htwplus_temp";
 	
     @Transactional(readOnly=true)	
-    public static Result view(Long id) {
+    public static Result view(Long id, String keyword) {
     	Media media = Media.findById(id);
 		Logger.debug("Media: " + media.title);
     	if(Secured.viewMedia(media)) {
@@ -52,6 +52,58 @@ public class MediaController extends BaseController {
     		return redirect(controllers.routes.Application.index());
      	}
     }
+
+	public static String setPdfViewer(Long id) {
+		Media m = Media.findById(id);
+		String pdfPath;
+
+		if (m.mimetype.endsWith("pdf")) {
+			pdfPath = "/assets/pdfjs/viewer.html?file=";
+		}
+		else {
+			pdfPath = "";
+		}
+
+		return pdfPath;
+	}
+
+	public static String addColorboxClass(Long id) {
+		Media m = Media.findById(id);
+		String classString;
+		if (m.mimetype.startsWith("image")) {
+			classString = "colorboxImage";
+		}
+		else {
+			classString = "";
+		}
+		return classString;
+	}
+
+	public static String glyph(Long id){
+		Media m = Media.findById(id);
+		String glyphicon = "glyphicon-file";
+		String mime = m.mimetype;
+		if(mime.endsWith("pdf")) {
+			glyphicon = "glyphicon glyphicon-align-center";
+		}
+		if(mime.startsWith("text"))
+		{
+			glyphicon = "glyphicon-align-justify";
+		}
+		if(mime.startsWith("image"))
+		{
+			glyphicon = "glyphicon-picture";
+		}
+		if(mime.startsWith("video"))
+		{
+			glyphicon = "glyphicon-film";
+		}
+		if(mime.startsWith("audio"))
+		{
+			glyphicon = "glyphicon-music";
+		}
+		return glyphicon;
+	}
     
     @Transactional
     public static Result delete(Long id) {
@@ -212,7 +264,7 @@ public class MediaController extends BaseController {
     public static Result upload(Long id, Long folderID) {
 	    final int maxTotalSize = Play.application().configuration().getInt("media.maxSize.total");
 	    final int maxFileSize = Play.application().configuration().getInt("media.maxSize.file");
-	    
+
 		Call ret = controllers.routes.Application.index();
 		Group group = Group.findById(id);
 		Folder folder = Folder.findById(folderID);
@@ -228,12 +280,14 @@ public class MediaController extends BaseController {
 		if (contentLength != null) {
 			int size = Integer.parseInt(contentLength[0]);
 			if(Media.byteAsMB(size) > maxTotalSize) {
-				flash("error", "Du darfst auf einmal nur " + maxTotalSize + " MB hochladen.");
-				return redirect(ret);
+				return ok("Du darfst auf einmal nur " + maxTotalSize + " MB hochladen.");
+				/*flash("error", "Du darfst auf einmal nur " + maxTotalSize + " MB hochladen.");
+				return redirect(ret);*/
 			}
 		} else {
-			flash("error", "Etwas ist schiefgegangen. Bitte probiere es noch einmal!");
-		    return redirect(ret);  	
+			return ok("Etwas ist schiefgegangen. Bitte probiere es noch einmal!");
+			/*flash("error", "Etwas ist schiefgegangen. Bitte probiere es noch einmal!");
+		    return redirect(ret); */
 		}
 		
 		// Get the data
@@ -243,29 +297,42 @@ public class MediaController extends BaseController {
 		List<Media> mediaList = new ArrayList<Media>();
 		
 		if (!uploads.isEmpty()) {
+
 			
 			// Create the Media models and perform some checks
 			for (FilePart upload : uploads) {
 				
 				Media med = new Media();
 				med.title = upload.getFilename();
-				med.mimetype = upload.getContentType();
 				med.fileName = upload.getFilename();
+				// added this code snippet for fixing the upload bug from firefox where pdf file has the mime typ "application/binary or other
+				if (upload.getContentType().endsWith("binary") && request().headers().get("User-Agent")[0].contains("Mozilla") &&  med.fileName.endsWith(".pdf")) {
+					med.mimetype = "application/pdf";
+					Logger.info ("PDF upload with Mozilla, set Mimetype manuell");
+				}
+				else {
+					med.mimetype = upload.getContentType();
+				}
 				med.file = upload.getFile();				
 				med.owner = Component.currentAccount();
 				med.inFolder = folder;
 				
 				if (Media.byteAsMB(med.file.length()) > maxFileSize) {
-					flash("error", "Die Datei " + med.title + " ist größer als " + maxFileSize + " MB!");
-					return redirect(ret);
+					return ok("Die Datei " + med.title + " ist größer als " + maxFileSize + " MB!");
+					/*flash("error", "Die Datei " + med.title + " ist größer als " + maxFileSize + " MB!");
+					return redirect(ret);*/
 				}
 
-				med.temporarySender = Component.currentAccount();
-				med.group = group;
-				if(med.existsInFolder(folder)){
-					flash("error", "Eine Datei mit dem Namen " + med.title + " existiert bereits");
-					return redirect(ret);
-				}
+				if(target.equals(Media.GROUP)) {
+                    med.temporarySender = Component.currentAccount();
+					med.group = group;
+					if (med.existsInGroup(group)) {
+						//flash("error", error);
+						return ok("Eine Datei mit dem Namen " + med.title + " existiert bereits");
+						//return redirect(ret);
+					}
+				} 				
+
 				mediaList.add(med);
 			}
 			
@@ -281,10 +348,11 @@ public class MediaController extends BaseController {
 					return internalServerError(e.getMessage());
 				}
 			}
-			flash("success", "Datei(en) erfolgreich hinzugefügt.");
-		    return redirect(ret);
+			//flash("success", "");
+			return ok("Datei(en) erfolgreich hinzugefügt.");
+		    //return redirect(ret);
 		} else {
-			flash("error", "Etwas ist schiefgegangen. Bitte probiere es noch einmal!");
+			flash("error", "Etwas ist schiefgegangen. Bitte probiere es noch einmal! Dropzone geht aber...");
 		    return redirect(ret);  
 		}
     }
