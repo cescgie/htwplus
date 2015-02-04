@@ -11,6 +11,7 @@ import play.Logger;
 import play.Play;
 import play.data.DynamicForm;
 import play.data.Form;
+import play.db.jpa.JPA;
 import play.db.jpa.Transactional;
 import play.i18n.Messages;
 import play.mvc.Call;
@@ -45,8 +46,50 @@ public class GroupController extends BaseController {
 		
 	@Transactional(readOnly=true)
 	public static Result view(Long id, int page) {
+
+		Logger.debug("ID von " + id);
+		
+		List<Folder> list = JPA.em().createNamedQuery(Folder.QUERY_FETCH_ALL).getResultList();
+		Logger.debug("List: " + list.size());
+		
+		Folder f0 = null;
+		if (list.isEmpty()) {
+			Logger.debug("Create Root Folder");
+			f0 = new Folder(); //FolderController.createFolder("root", null);
+			f0.name = "root";
+			f0.depth = 0;
+			f0.parent = null;
+			f0.group = null;
+			f0.create();
+			Logger.debug("Create Root Folder - created");
+		} else {
+			f0 = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT).getSingleResult();
+		}
+
 		Logger.info("Show group with id: " +id);
 		Group group = Group.findById(id);
+		
+
+		List<Folder> list1 = JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, group.id).getResultList();
+		Logger.debug("List of Group size: " + list1.size() + "(GroupID:" + group.id +")");
+		
+		for(Folder f : list1) {
+			Logger.debug("Folder:  " + f.toAlternateString());
+		}
+		
+		
+		if (list1.isEmpty()) {
+			Logger.debug("Create root folder for group");
+			Folder f1 = new Folder(); //FolderController.createFolder("root", null);
+			f1.name = "rootOf"+group.title;
+			f1.depth = 1;
+			f1.parent = f0;
+			f1.group = group;
+			f1.create();
+			Logger.debug("Root Folder for group created with ID:" + f1.id);
+		}
+		
+		
 		if(!Secured.viewGroup(group)){
 			return redirect(controllers.routes.Application.index());
 		}
