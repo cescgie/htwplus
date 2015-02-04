@@ -1104,6 +1104,6 @@ input.hour-time {
 
 
 #send-button {
-	vertical-align: bottom important!;
+	vertical-align: bottom !important;
 	margin-top: 8px;
 }

@@ -323,15 +323,13 @@ public class MediaController extends BaseController {
 					return redirect(ret);*/
 				}
 
-				if(target.equals(Media.GROUP)) {
-                    med.temporarySender = Component.currentAccount();
-					med.group = group;
-					if (med.existsInGroup(group)) {
-						//flash("error", error);
-						return ok("Eine Datei mit dem Namen " + med.title + " existiert bereits");
-						//return redirect(ret);
-					}
-				} 				
+                med.temporarySender = Component.currentAccount();
+                med.group = group;
+                if (med.existsInGroup(group)) {
+                    //flash("error", error);
+                    return ok("Eine Datei mit dem Namen " + med.title + " existiert bereits");
+                    //return redirect(ret);
+                }
 
 				mediaList.add(med);
 			}
