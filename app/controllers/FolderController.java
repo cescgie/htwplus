@@ -62,6 +62,16 @@ public class FolderController extends BaseController {
         }
     }
 
+    public static Result renameFolder(String argName, Folder folder) {
+        if (allowToCreate(argName,folder.parent)) {
+            folder.name = argName;
+            return listFolder(folder.parent.group.id, folder.parent.id);
+        } else {
+            flash("error", "Den Namen können Sie nicht vergeben.");
+            return listFolder(folder.parent.group.id, folder.parent.id);
+        }
+    }
+
     private static boolean allowToCreate(String argName, Folder parent) {
         boolean allow = false;
         if (parent.depth < DEPTH) {
