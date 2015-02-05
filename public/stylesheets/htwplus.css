@@ -1095,6 +1095,7 @@ input.hour-time {
 
 .dropzone{
     cursor: pointer;
+
 }
 .dropzone.dz-drag-hover {
 	border: 2px solid #76b900;
