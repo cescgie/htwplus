@@ -38,6 +38,9 @@ public class Folder extends BaseModel{
     @ManyToOne
     public Group group;
 
+    @ManyToOne
+    public Account owner;
+
     @OneToMany(mappedBy = "inFolder"/*, cascade=CascadeType.REMOVE*/)
     public List<Media> files;
 

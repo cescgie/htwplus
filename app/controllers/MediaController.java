@@ -286,8 +286,8 @@ public class MediaController extends BaseController {
 			}
 		} else {
 			return ok("Etwas ist schiefgegangen. Bitte probiere es noch einmal!");
-			/*flash("error", "Etwas ist schiefgegangen. Bitte probiere es noch einmal!");
-		    return redirect(ret); */
+//			flash("error", "Etwas ist schiefgegangen. Bitte probiere es noch einmal!");
+//		    return redirect(ret);
 		}
 		
 		// Get the data
@@ -319,16 +319,16 @@ public class MediaController extends BaseController {
 				
 				if (Media.byteAsMB(med.file.length()) > maxFileSize) {
 					return ok("Die Datei " + med.title + " ist größer als " + maxFileSize + " MB!");
-					/*flash("error", "Die Datei " + med.title + " ist größer als " + maxFileSize + " MB!");
-					return redirect(ret);*/
+//					flash("error", "Die Datei " + med.title + " ist größer als " + maxFileSize + " MB!");
+//					return redirect(ret);
 				}
 
                 med.temporarySender = Component.currentAccount();
                 med.group = group;
                 if (med.existsInGroup(group)) {
-                    //flash("error", error);
                     return ok("Eine Datei mit dem Namen " + med.title + " existiert bereits");
-                    //return redirect(ret);
+//                    flash("error", "Eine Datei mit dem Namen " + med.title + " existiert bereits");
+//                    return redirect(ret);
                 }
 
 				mediaList.add(med);
@@ -346,9 +346,9 @@ public class MediaController extends BaseController {
 					return internalServerError(e.getMessage());
 				}
 			}
-			//flash("success", "");
-			return ok("Datei(en) erfolgreich hinzugefügt.");
-		    //return redirect(ret);
+            return ok("Datei(en) erfolgreich hinzugefügt.");
+//			flash("success", "Datei(en) erfolgreich hinzugefügt.");
+//		    return redirect(ret);
 		} else {
 			flash("error", "Etwas ist schiefgegangen. Bitte probiere es noch einmal! Dropzone geht aber...");
 		    return redirect(ret);  

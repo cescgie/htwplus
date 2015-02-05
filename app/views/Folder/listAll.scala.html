@@ -3,11 +3,14 @@
 @import models._
 
 	<!-- Start confirmRenameMediaModal -->
-	@for(f <- folderList) {
-		<div class="modal fade" id="confirmRenameFolder@f.id" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
-			@views.html.Folder.snippets.renameFolderModal(f)
-		</div>
-	}
+
+    @for(f <- folderList) {
+        @if(Secured.renameFolder(f)) {
+        <div class="modal fade" id="confirmRenameFolder@f.id" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        @views.html.Folder.snippets.renameFolderModal(f)
+        </div>
+        }
+    }
 	<!-- End confirmRenameMediaModal -->
 
 <table class="table table-hover table-condensed">
@@ -30,7 +33,7 @@
 				<tr>
 					<td><input name="selection" value="@f.id" type="checkbox"></td>
 					<td><span class="glyphicon glyphicon-folder-open"></span></td>
-					<td><a href="@routes.FolderController.listFolder(f.group.id, f.id)">@f.name</a></td>
+					<td><a href="@routes.FolderController.listFolder(f.group.id, f.id)" rel="tooltip" data-delay="500" data-original-title="von @f.owner.name">@f.name</a></td>
 					<td>@f.createdAt.format("dd.MM.yyyy")</td>
 					<td> - </td>
 					<td class="hp-optionsMenu">

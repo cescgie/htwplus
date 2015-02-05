@@ -18,18 +18,20 @@
 
         <ul class="dropdown-menu nav-pills" role="menu" aria-labelledby="dropdownMenu">
 
-        @if(Secured.deleteFolder(folder)) {
+            @if(Secured.deleteFolder(folder)) {
             <li>
                 <a href="#confirmDeleteMedia@folder.id" data-toggle="modal">
                     <span class="glyphicon glyphicon-trash"></span><br>Löschen
                 </a>
             </li>
-        }
+            }
+            @if(Secured.renameFolder(folder)) {
             <li>
                 <a href="#confirmRenameFolder@folder.id" data-toggle="modal">
                     <span class="glyphicon glyphicon-pencil"></span><br>Umbennenen
                 </a>
             </li>
+            }
             <li><a href="@routes.FolderController.singleDownload(folder.group.id,folder.id)" data-toggle="modal" methods="post">
                 <span class="glyphicon glyphicon-download"></span><br>Herunterladen
             </a></li>

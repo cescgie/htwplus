@@ -93,6 +93,17 @@ public class Secured extends Security.Authenticator {
 		return group != null && group.owner.equals(account);
 	}
 
+    /**
+     * Returns true, if an account is owner of a Folder.
+     *
+     * @param folder Folder
+     * @param account Account
+     * @return True, if account is owner of group
+     */
+    public static boolean isOwnerOfFolder(Folder folder, Account account) {
+        return folder != null && folder.owner.equals(account);
+    }
+
 	/**
 	 * Returns true, if the currently logged in account is allowed to create a course.
 	 *
@@ -394,30 +405,37 @@ public class Secured extends Security.Authenticator {
 	 */
 	public static boolean uploadMedia(Group group) {
 		Account current = Component.currentAccount();
+        Logger.debug("upload Media with Account: " + current.name);
 
 		if (group == null) {
+            Logger.debug("upload Media - group=null (false)");
 			return false;
 		}
 
 		if (Secured.isAdmin()) {
+            Logger.debug("upload Media - Admin (true)");
 			return true;
 		}
 
 		switch (group.groupType) {
 			case open:
 				if (Secured.isMemberOfGroup(group, current)) {
+                    Logger.debug("upload Media - open (true)");
 					return true;
 				}
 
 			case close:
 				if (Secured.isMemberOfGroup(group, current)) {
+                    Logger.debug("upload Media - close (true)");
 					return true;
 				}
 			case course:
 				if (Secured.isOwnerOfGroup(group, current)) {
+                    Logger.debug("upload Media - course (true)");
 					return true;
 				}
 			default:
+                Logger.debug("upload Media - default (false)");
 				return false;
 		}
 	}
@@ -484,7 +502,36 @@ public class Secured extends Security.Authenticator {
 		} else if (Secured.isOwnerOfGroup(folder.group, current)) {
 			Logger.debug("Delete Folder[" + folder.id + "] as Owner");
 			returnBool = true;
-		}
+		} else if (Secured.isOwnerOfFolder(folder, current)) {
+            Logger.debug("Delete Folder[" + folder.id + "] as Owner");
+            returnBool = true;
+        }
 		return returnBool;
 	}
+
+    /**
+     * Returns true, if the currently logged in account is allowed to delete a specific folder.
+     *
+     * @param folder Folder to delete
+     * @return True, if logged in account is allowed to delete folder
+     */
+    public static boolean renameFolder(Folder folder) {
+        Logger.debug("check rename Folder[" + folder.id + "]...");
+        Account current = Component.currentAccount();
+        boolean returnBool = false;
+        if (folder == null) {
+            Logger.debug("Rename Folder[" + folder.id + "]: null");
+            returnBool =  false;
+        } else if(Secured.isAdmin()) {
+            Logger.debug("Rename Folder[" + folder.id + "] as Admin");
+            returnBool =  true;
+        } else if (Secured.isOwnerOfGroup(folder.group, current)) {
+            Logger.debug("Rename Folder[" + folder.id + "] as Owner");
+            returnBool = true;
+        } else if (Secured.isOwnerOfFolder(folder, current)) {
+            Logger.debug("Rename Folder[" + folder.id + "] as Owner");
+            returnBool = true;
+        }
+        return returnBool;
+    }
 }

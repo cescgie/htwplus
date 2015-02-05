@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.deser.Deserializers;
 import models.Folder;
 import models.Group;
 import models.Media;
+import org.omg.CORBA.Current;
 import play.Logger;
 import play.Play;
 import play.data.Form;
@@ -43,15 +44,17 @@ public class FolderController extends BaseController {
     @Transactional
     public static Result createFolder(Long groupID, Long parentID) {
         Folder parent = Folder.findById(parentID);
+        Group group = Group.findById(groupID);
         Form<Folder> filledForm = folderForm.bindFromRequest();
         String name = filledForm.data().get("name");
-        if(Secured.viewFolder(parent) && groupID == parent.group.id) {
+        if(Secured.isMemberOfGroup(group, Component.currentAccount()) && groupID == parent.group.id) {
             if (allowToCreate(name,parent)) {
                 Folder folder = new Folder();
                 folder.name = name;
                 folder.group = parent.group;
                 folder.parent = parent;
                 folder.depth = parent.depth + 1;
+                folder.owner =  Component.currentAccount();
                 folder.create();
             } else {
                 if (name.length() > MAX_NAME_LENGTH) {
@@ -72,8 +75,8 @@ public class FolderController extends BaseController {
     @Transactional
     public static Result renameFolder(Long groupId, Long folderId) {
         Group group = Group.findById(groupId);
-        if(Secured.viewGroup(group)) {
-            Folder folder = Folder.findById(folderId);
+        Folder folder = Folder.findById(folderId);
+        if(Secured.renameFolder(folder)) {
             String oldName = folder.name;
             Form<Folder> filledForm = folderForm.bindFromRequest();
             String newName = filledForm.data().get("name");
@@ -101,7 +104,7 @@ public class FolderController extends BaseController {
         Folder folder = Folder.findById(folderID);
         Group group = Group.findById(groupID);
 
-        if(Secured.viewFolder(folder) && Secured.viewGroup(group) && groupID == folder.group.id) {
+        if(Secured.viewFolder(folder) && groupID == folder.group.id) {
             Folder groupFolder = getGroupFolder(group);
             List<Folder> path = getPathOfThisFolder(folder);
             Logger.debug("show Folder with ID:" + folderID);
@@ -140,6 +143,7 @@ public class FolderController extends BaseController {
             groupFolder.depth = rootFolder.depth + 1;
             groupFolder.parent = rootFolder;
             groupFolder.group = group;
+            groupFolder.owner =  group.owner;
             groupFolder.create();
             Logger.debug("Group Folder -> created");
         }
@@ -321,6 +325,7 @@ public class FolderController extends BaseController {
             rootFolder.depth = 0;
             rootFolder.parent = null;
             rootFolder.group = null;
+            rootFolder.owner = null;
             rootFolder.create();
             Logger.debug("Root Folder -> created");
         }

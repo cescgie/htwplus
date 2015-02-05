@@ -55,8 +55,6 @@ public class GroupController extends BaseController {
 		Logger.info("Show group with id: " +id);
 		Group group = Group.findById(id);
 
-//		Folder groupFolder = FolderController.getGroupFolder(group.id);
-
 		if(!Secured.viewGroup(group)){
 			return redirect(controllers.routes.Application.index());
 		}
