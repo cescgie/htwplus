@@ -37,8 +37,10 @@ public class FolderController extends BaseController {
     final static Form<Folder> folderForm = form(Folder.class);
     final static String tempPrefix = "htwplus_temp";
     public static final int DEPTH = 6;
+    private static final int MAX_NAME_LENGTH = 30;
     final static int PAGE = 1;
 
+    @Transactional
     public static Result createFolder(Long groupID, Long parentID) {
         Folder parent = Folder.findById(parentID);
         Form<Folder> filledForm = folderForm.bindFromRequest();
@@ -52,9 +54,14 @@ public class FolderController extends BaseController {
                 folder.depth = parent.depth + 1;
                 folder.create();
             } else {
-                flash("error", "Ein Ordner mit diesem Namen existiert bereits oder die maximale Ordnertiefe wurde erreicht!");
+                if (name.length() > MAX_NAME_LENGTH) {
+                    flash("error", "Der eingegebene Ordnername ist zu lang (max. 30 Zeichen)");
+                } else  {
+                    flash("error", "Ein Ordner mit diesem Namen existiert bereits!");
+                }
                 return redirectFolder(groupID, parentID);
             }
+            flash("success", "Der Ordner \"" + name + "\" wurde erfolgreich angelegt");
             return redirectFolder(parent.group.id,parentID);
         } else {
             flash("error", "Dazu hast du keine Berechtigung!");
@@ -62,35 +69,31 @@ public class FolderController extends BaseController {
         }
     }
 
+    @Transactional
     public static Result renameFolder(Long groupId, Long folderId) {
-        Folder folder = Folder.findById(folderId);
         Group group = Group.findById(groupId);
-
-        Form<Folder> filledForm = folderForm.bindFromRequest();
-        String name = filledForm.data().get("name");
-
-        if (allowToCreate(name,folder.parent)) {
-            folder.name = name;
-            return listFolder(group.id, folder.parent.id);
+        if(Secured.viewGroup(group)) {
+            Folder folder = Folder.findById(folderId);
+            String oldName = folder.name;
+            Form<Folder> filledForm = folderForm.bindFromRequest();
+            String newName = filledForm.data().get("name");
+            if (allowToCreate(newName, folder.parent)) {
+                folder.name = newName;
+                flash("success", "Der Ordner \"" + oldName + "\" wurde erfolgreich in \"" + newName + "\" umbenannt");
+                return listFolder(group.id, folder.parent.id);
+            } else {
+                if (newName.length() > MAX_NAME_LENGTH) {
+                    flash("error", "Der eingegebene Ordnername ist zu lang (max. 30 Zeichen)");
+                } else  {
+                    flash("error", "Ein Ordner mit diesem Namen existiert bereits!");
+                }
+                return listFolder(folder.parent.group.id, folder.parent.id);
+            }
         } else {
-            flash("error", "Ein Ordner mit diesem Namen existiert bereits!");
-            return listFolder(folder.parent.group.id, folder.parent.id);
+            flash("error", "Dazu hast du keine Berechtigung!");
+            return redirect(controllers.routes.Application.index());
         }
     }
-
-    private static boolean allowToCreate(String argName, Folder parent) {
-        boolean allow = false;
-        if (parent.depth < DEPTH) {
-            allow = true;
-        if (parent.childs != null)
-            for (Folder f: parent.childs)
-                if (f.name.equals(argName))
-                    allow =false;
-
-        }
-        return allow;
-    }
-
 
     @Transactional
     public static Result listFolder(Long groupID, Long folderID) {
@@ -110,19 +113,6 @@ public class FolderController extends BaseController {
         }
     }
 
-    private static List<Folder> getPathOfThisFolder(Folder folder) {
-        List<Folder> pathTemp = new ArrayList<Folder>();
-        List<Folder> path = new ArrayList<Folder>();
-        while (folder.depth > 0) {
-            pathTemp.add(folder);
-            folder = folder.parent;
-        }
-        for (int i = pathTemp.size()-1; i >= 0; i--) {
-            path.add(pathTemp.get(i));
-        }
-        return path;
-    }
-
     @Transactional
     public static Result deleteFolder(Long groupID,Long folderID) {
         Logger.debug("use deleteFolder");
@@ -135,20 +125,11 @@ public class FolderController extends BaseController {
         } else {
             flash("error", "Dazu hast du keine Berechtigung!");
         }
-        flash("success", "Der Ordner wurde erfolgreich gelöscht");
+        flash("success", "Der Ordner \"" + folder.name + "\" wurde erfolgreich gelöscht");
         return redirect(controllers.routes.FolderController.listFolder(groupID, parent.id));
     }
 
-    private static void deleteFolderContent(Folder folder){
-        for (Media m: folder.files) {
-            m.delete();
-        }
-        for (Folder f: folder.childs) {
-            deleteFolderContent(f);
-        }
-        folder.delete();
-    }
-
+    @Transactional
     public static Folder createGroupFolder(Group group) {
         Folder rootFolder = getRootFolder();
         Folder groupFolder = null;
@@ -165,6 +146,7 @@ public class FolderController extends BaseController {
         return groupFolder;
     }
 
+    @Transactional
     public static Folder getGroupFolder(Group group) {
         Folder groupFolder = null;
         if(Secured.viewGroup(group)) {
@@ -176,28 +158,6 @@ public class FolderController extends BaseController {
             }
         }
         return groupFolder;
-    }
-
-    private static Folder getRootFolder() {
-        Folder rootFolder = null;
-        try {
-            rootFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT).getSingleResult();
-        } catch (NoResultException e) {
-            // catch to create Rootfolder if not exist ! For old Projekt !!
-            Logger.debug("Create Root Folder...");
-            rootFolder = new Folder();
-            rootFolder.name = "root";
-            rootFolder.depth = 0;
-            rootFolder.parent = null;
-            rootFolder.group = null;
-            rootFolder.create();
-            Logger.debug("Root Folder -> created");
-        }
-        return rootFolder;
-    }
-
-    public static Result redirectFolder(Long groupID, Long folderID) {
-        return redirect("/group/" + groupID + "/folder/" + folderID);
     }
 
     @Transactional(readOnly=true)
@@ -273,6 +233,10 @@ public class FolderController extends BaseController {
         return ok(file);
     }
 
+    public static Result redirectFolder(Long groupID, Long folderID) {
+        return redirect("/group/" + groupID + "/folder/" + folderID);
+    }
+
     private static void addFile2Zip(Media media, String filePath, ZipOutputStream zipOut) throws IOException{
         Logger.debug("add Filename: " + media.file.getName());
         byte[] buffer = new byte[4092];
@@ -305,5 +269,61 @@ public class FolderController extends BaseController {
                 addFolder2Zip(filePath, f, zipOut);
             }
         }
+    }
+
+    private static List<Folder> getPathOfThisFolder(Folder folder) {
+        List<Folder> pathTemp = new ArrayList<Folder>();
+        List<Folder> path = new ArrayList<Folder>();
+        while (folder.depth > 0) {
+            pathTemp.add(folder);
+            folder = folder.parent;
+        }
+        for (int i = pathTemp.size()-1; i >= 0; i--) {
+            path.add(pathTemp.get(i));
+        }
+        return path;
+    }
+
+    private static boolean allowToCreate(String argName, Folder parent) {
+        boolean allow = false;
+        if (argName.length() <= MAX_NAME_LENGTH && parent.depth < DEPTH) {
+            if (parent.childs == null) {
+                allow = true;
+            } else {
+                allow = true;
+                for (Folder f: parent.childs)
+                    if (f.name.equals(argName))
+                        allow =false;
+            }
+        }
+        return allow;
+    }
+
+    private static void deleteFolderContent(Folder folder){
+        for (Media m: folder.files) {
+            m.delete();
+        }
+        for (Folder f: folder.childs) {
+            deleteFolderContent(f);
+        }
+        folder.delete();
+    }
+
+    private static Folder getRootFolder() {
+        Folder rootFolder = null;
+        try {
+            rootFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT).getSingleResult();
+        } catch (NoResultException e) {
+            // catch to create Rootfolder if not exist ! For old Projekt !!
+            Logger.debug("Create Root Folder...");
+            rootFolder = new Folder();
+            rootFolder.name = "root";
+            rootFolder.depth = 0;
+            rootFolder.parent = null;
+            rootFolder.group = null;
+            rootFolder.create();
+            Logger.debug("Root Folder -> created");
+        }
+        return rootFolder;
     }
 }
