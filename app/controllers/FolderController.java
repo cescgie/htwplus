@@ -172,7 +172,7 @@ public class FolderController extends BaseController {
                 groupFolder = (Folder) JPA.em().createNamedQuery(Folder.QUERY_FIND_ROOT_OF_GROUP).setParameter(Folder.PARAM_GROUP_ID, group.id).getSingleResult();
             } catch (NoResultException e) {
                 // catch to create Groupfolder if not exists ! For old Projekt !!
-                createGroupFolder(group);
+                groupFolder = createGroupFolder(group);
             }
         }
         return groupFolder;
