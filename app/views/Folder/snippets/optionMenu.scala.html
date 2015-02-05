@@ -3,11 +3,12 @@
 @import models._
 
 
-@if(Secured.deleteFolder(folder)) {
     <!-- Start confirmDeleteFolderModal -->
-    <div class="modal fade" id="confirmDeleteMedia@folder.id" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    @if(Secured.deleteFolder(folder)) {
+        <div class="modal fade" id="confirmDeleteMedia@folder.id" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
         @views.html.Folder.snippets.deleteFolderModal(folder)
-    </div>
+        </div>
+    }
     <!-- End confirmDeleteFolderModal -->
 
     <div class="dropdown">
@@ -17,11 +18,13 @@
 
         <ul class="dropdown-menu nav-pills" role="menu" aria-labelledby="dropdownMenu">
 
+        @if(Secured.deleteFolder(folder)) {
             <li>
                 <a href="#confirmDeleteMedia@folder.id" data-toggle="modal">
                     <span class="glyphicon glyphicon-trash"></span><br>Löschen
                 </a>
             </li>
+        }
             <li>
                 <a href="#confirmRenameFolder@folder.id" data-toggle="modal">
                     <span class="glyphicon glyphicon-pencil"></span><br>Umbennenen
@@ -33,4 +36,4 @@
 
         </ul>
     </div>
-}
+
