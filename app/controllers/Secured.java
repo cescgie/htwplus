@@ -24,31 +24,31 @@ public class Secured extends Security.Authenticator {
 	 * @return ID or null
 	 */
 	@Override
-    public String getUsername(Context ctx) {
+	public String getUsername(Context ctx) {
 		// see if user is logged in
-        if (ctx.session().get("id") == null)
-            return null;
- 
-        // see if the session is expired
-        String previousTick = ctx.session().get("userTime");
-        if (previousTick != null && !previousTick.equals("")) {
-            long previousT = Long.valueOf(previousTick);
-            long currentT = new Date().getTime();
-            long timeout = Long.valueOf(Play.application().configuration().getString("sessionTimeout")) * 1000 * 60;
-            long passedT = currentT - previousT;
-            if (passedT > timeout && !ctx.session().containsKey("rememberMe")) {
-                // session expired
-            	ctx.session().clear();
-            	play.mvc.Controller.flash("info", Messages.get("error.sessionExpired"));
-                return null;
-            } 
-        }
- 
-        // update time in session
-        String tickString = Long.toString(new Date().getTime());
-        ctx.session().put("userTime", tickString);
+		if (ctx.session().get("id") == null)
+			return null;
+
+		// see if the session is expired
+		String previousTick = ctx.session().get("userTime");
+		if (previousTick != null && !previousTick.equals("")) {
+			long previousT = Long.valueOf(previousTick);
+			long currentT = new Date().getTime();
+			long timeout = Long.valueOf(Play.application().configuration().getString("sessionTimeout")) * 1000 * 60;
+			long passedT = currentT - previousT;
+			if (passedT > timeout && !ctx.session().containsKey("rememberMe")) {
+				// session expired
+				ctx.session().clear();
+				play.mvc.Controller.flash("info", Messages.get("error.sessionExpired"));
+				return null;
+			}
+		}
+
+		// update time in session
+		String tickString = Long.toString(new Date().getTime());
+		ctx.session().put("userTime", tickString);
 		return ctx.session().get("id");
-    }
+	}
 
 	/**
 	 * Returns Result instance to landing page (on un-authorization).
@@ -56,10 +56,10 @@ public class Secured extends Security.Authenticator {
 	 * @return Result instance
 	 */
 	@Override
-    public Result onUnauthorized(Context ctx) {
+	public Result onUnauthorized(Context ctx) {
 		Logger.info("Unauthorized - Redirect to Login");
 		return ok(landingpage.render());
-    }
+	}
 
 	/**
 	 * Returns true, if the currently logged in user is admin.
@@ -93,16 +93,16 @@ public class Secured extends Security.Authenticator {
 		return group != null && group.owner.equals(account);
 	}
 
-    /**
-     * Returns true, if an account is owner of a Folder.
-     *
-     * @param folder Folder
-     * @param account Account
-     * @return True, if account is owner of group
-     */
-    public static boolean isOwnerOfFolder(Folder folder, Account account) {
-        return folder != null && folder.owner.equals(account);
-    }
+	/**
+	 * Returns true, if an account is owner of a Folder.
+	 *
+	 * @param folder Folder
+	 * @param account Account
+	 * @return True, if account is owner of group
+	 */
+	public static boolean isOwnerOfFolder(Folder folder, Account account) {
+		return folder != null && folder.owner.equals(account);
+	}
 
 	/**
 	 * Returns true, if the currently logged in account is allowed to create a course.
@@ -219,15 +219,15 @@ public class Secured extends Security.Authenticator {
 	 */
 	public static boolean viewPost(Post post) {
 		Account current = Component.currentAccount();
-		
+
 		if (post == null) {
 			return false;
 		}
-		
+
 		if (Secured.isAdmin()) {
 			return true;
 		}
-		
+
 		if(post.belongsToAccount()) {
 			return post.account.equals(current) || Secured.isFriend(post.account);
 		}
@@ -249,7 +249,7 @@ public class Secured extends Security.Authenticator {
 					return false;
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -309,11 +309,11 @@ public class Secured extends Security.Authenticator {
 	 */
 	public static boolean viewComments(Post post) {
 		Account current = Component.currentAccount();
-		
+
 		if (post == null) {
 			return false;
 		}
-		
+
 		if (Secured.isAdmin()) {
 			return true;
 		}
@@ -321,7 +321,7 @@ public class Secured extends Security.Authenticator {
 		if (post.belongsToAccount()) {
 			return post.account.equals(current) || Secured.isFriend(post.account);
 		}
-		
+
 		if (post.belongsToGroup()) {
 			switch (post.group.groupType) {
 				case open:
@@ -339,7 +339,7 @@ public class Secured extends Security.Authenticator {
 					return false;
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -405,37 +405,37 @@ public class Secured extends Security.Authenticator {
 	 */
 	public static boolean uploadMedia(Group group) {
 		Account current = Component.currentAccount();
-        Logger.debug("upload Media with Account: " + current.name);
+		Logger.debug("upload Media with Account: " + current.name);
 
 		if (group == null) {
-            Logger.debug("upload Media - group=null (false)");
+			Logger.debug("upload Media - group=null (false)");
 			return false;
 		}
 
 		if (Secured.isAdmin()) {
-            Logger.debug("upload Media - Admin (true)");
+			Logger.debug("upload Media - Admin (true)");
 			return true;
 		}
 
 		switch (group.groupType) {
 			case open:
 				if (Secured.isMemberOfGroup(group, current)) {
-                    Logger.debug("upload Media - open (true)");
+					Logger.debug("upload Media - open (true)");
 					return true;
 				}
 
 			case close:
 				if (Secured.isMemberOfGroup(group, current)) {
-                    Logger.debug("upload Media - close (true)");
+					Logger.debug("upload Media - close (true)");
 					return true;
 				}
 			case course:
 				if (Secured.isOwnerOfGroup(group, current)) {
-                    Logger.debug("upload Media - course (true)");
+					Logger.debug("upload Media - course (true)");
 					return true;
 				}
 			default:
-                Logger.debug("upload Media - default (false)");
+				Logger.debug("upload Media - default (false)");
 				return false;
 		}
 	}
@@ -447,7 +447,7 @@ public class Secured extends Security.Authenticator {
 	 * @return True, if logged in account is allowed to view media
 	 */
 	public static boolean viewMedia(Media media) {
-        return media != null && Secured.viewGroup(media.group);
+		return media != null && Secured.viewGroup(media.group);
 	}
 
 	/**
@@ -459,16 +459,16 @@ public class Secured extends Security.Authenticator {
 	public static boolean deleteMedia(Media media) {
 		Account current = Component.currentAccount();
 		Group group = media.group;
-        
-        return Secured.isAdmin() || Secured.isOwnerOfGroup(group, current) || media.owner.equals(current);
-    }
 
-    /**
-     * Returns true, if the current user has access to a notification.
-     *
-     * @param notification Notification to be checked
-     * @return True, if user has access
-     */
+		return Secured.isAdmin() || Secured.isOwnerOfGroup(group, current) || media.owner.equals(current);
+	}
+
+	/**
+	 * Returns true, if the current user has access to a notification.
+	 *
+	 * @param notification Notification to be checked
+	 * @return True, if user has access
+	 */
 	public static boolean hasAccessToNotification(Notification notification) {
 		return notification.recipient.equals(Component.currentAccount());
 	}
@@ -503,35 +503,35 @@ public class Secured extends Security.Authenticator {
 			Logger.debug("Delete Folder[" + folder.id + "] as Owner");
 			returnBool = true;
 		} else if (Secured.isOwnerOfFolder(folder, current)) {
-            Logger.debug("Delete Folder[" + folder.id + "] as Owner");
-            returnBool = true;
-        }
+			Logger.debug("Delete Folder[" + folder.id + "] as Owner");
+			returnBool = true;
+		}
 		return returnBool;
 	}
 
-    /**
-     * Returns true, if the currently logged in account is allowed to delete a specific folder.
-     *
-     * @param folder Folder to delete
-     * @return True, if logged in account is allowed to delete folder
-     */
-    public static boolean renameFolder(Folder folder) {
-        Logger.debug("check rename Folder[" + folder.id + "]...");
-        Account current = Component.currentAccount();
-        boolean returnBool = false;
-        if (folder == null) {
-            Logger.debug("Rename Folder[" + folder.id + "]: null");
-            returnBool =  false;
-        } else if(Secured.isAdmin()) {
-            Logger.debug("Rename Folder[" + folder.id + "] as Admin");
-            returnBool =  true;
-        } else if (Secured.isOwnerOfGroup(folder.group, current)) {
-            Logger.debug("Rename Folder[" + folder.id + "] as Owner");
-            returnBool = true;
-        } else if (Secured.isOwnerOfFolder(folder, current)) {
-            Logger.debug("Rename Folder[" + folder.id + "] as Owner");
-            returnBool = true;
-        }
-        return returnBool;
-    }
+	/**
+	 * Returns true, if the currently logged in account is allowed to delete a specific folder.
+	 *
+	 * @param folder Folder to delete
+	 * @return True, if logged in account is allowed to delete folder
+	 */
+	public static boolean renameFolder(Folder folder) {
+		Logger.debug("check rename Folder[" + folder.id + "]...");
+		Account current = Component.currentAccount();
+		boolean returnBool = false;
+		if (folder == null) {
+			Logger.debug("Rename Folder[" + folder.id + "]: null");
+			returnBool =  false;
+		} else if(Secured.isAdmin()) {
+			Logger.debug("Rename Folder[" + folder.id + "] as Admin");
+			returnBool =  true;
+		} else if (Secured.isOwnerOfGroup(folder.group, current)) {
+			Logger.debug("Rename Folder[" + folder.id + "] as Owner");
+			returnBool = true;
+		} else if (Secured.isOwnerOfFolder(folder, current)) {
+			Logger.debug("Rename Folder[" + folder.id + "] as Owner");
+			returnBool = true;
+		}
+		return returnBool;
+	}
 }

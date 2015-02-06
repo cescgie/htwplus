@@ -45,10 +45,11 @@ Dropzone.options.fileuploadForm = {
     '<div class="delete-button"> <button data-dz-remove>Entfernen</button></div>' +
     '</div>',
     paramName: "form[files][]",
-    maxFilesize: 256,
+    maxFilesize: 5,
     uploadMultiple: true,
-    parallelUploads: 10,
+    parallelUploads: 20,
     autoProcessQueue: false,
+    dictFileTooBig: "Die Datei ist zu groß ({{filesize}}MiB). Die maximale Dateigröße beträgt: {{maxFilesize}}MiB.",
     dictDefaultMessage: "Hier klicken oder Hineinziehen um Dateien hochzuladen"
 
 };
