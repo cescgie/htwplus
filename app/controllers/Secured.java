@@ -502,10 +502,10 @@ public class Secured extends Security.Authenticator {
 		} else if (Secured.isOwnerOfGroup(folder.group, current)) {
 			Logger.debug("Delete Folder[" + folder.id + "] as Owner");
 			returnBool = true;
-		} else if (Secured.isOwnerOfFolder(folder, current)) {
+		} /*else if (Secured.isOwnerOfFolder(folder, current)) {
             Logger.debug("Delete Folder[" + folder.id + "] as Owner");
             returnBool = true;
-        }
+        }*/
 		return returnBool;
 	}
 
