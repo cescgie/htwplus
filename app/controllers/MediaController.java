@@ -43,7 +43,13 @@ public class MediaController extends BaseController {
 			if (media == null) {
 				return redirect(controllers.routes.Application.index());
 			} else {
-				response().setHeader("Content-disposition","attachment; filename=\"" + media.fileName + "\"");
+				if (keyword.equals("download")) {
+					response().setHeader("Content-disposition", "attachment; filename=\"" + media.fileName + "\"");
+				}
+				else {
+					response().setHeader("Content-disposition", "inline; filename=\"" + media.fileName + "\"");
+				}
+				
 				Logger.debug("return ok(media.file)");
 				return ok(media.file);
 			}
@@ -53,18 +59,22 @@ public class MediaController extends BaseController {
      	}
     }
 
-	public static String setPdfViewer(Long id) {
+	public static String setPrefix(Long id) {
 		Media m = Media.findById(id);
-		String pdfPath;
+		String prefix;
 
 		if (m.mimetype.endsWith("pdf")) {
-			pdfPath = "/assets/pdfjs/viewer.html?file=";
+			prefix = "/assets/pdfjs/viewer.html?file=";
+		}
+		else if (m.mimetype.startsWith("video")) {
+			//todo for html 5 video snippet
+			prefix = "";
 		}
 		else {
-			pdfPath = "";
+			prefix = "";
 		}
 
-		return pdfPath;
+		return prefix;
 	}
 
 	public static String addColorboxClass(Long id) {
@@ -116,7 +126,7 @@ public class MediaController extends BaseController {
                 flash("error", "Dazu hast du keine Berechtigung!");
 				return redirect(controllers.routes.Application.index());
     		}
-            ret = routes.FolderController.listFolder(media.group.id,media.inFolder.id);
+            ret = routes.FolderController.listFolder(media.group.id, media.inFolder.id);
     	}
     	media.delete();
 		flash("success", "Datei \"" + media.title + "\" wurde erfolgreich gelöscht!");
