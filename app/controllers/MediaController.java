@@ -113,12 +113,13 @@ public class MediaController extends BaseController {
     	if(media.belongsToGroup()){
     		Group group = media.group;
     		if(!Secured.deleteMedia(media)){
+                flash("error", "Dazu hast du keine Berechtigung!");
 				return redirect(controllers.routes.Application.index());
     		}
-    		ret = controllers.routes.GroupController.media(group.id);
+            ret = routes.FolderController.listFolder(media.group.id,media.inFolder.id);
     	}
     	media.delete();
-		flash("success", "Datei " + media.title + " erfolgreich gelöscht!");
+		flash("success", "Datei \"" + media.title + "\" wurde erfolgreich gelöscht!");
     	return redirect(ret);
     }	
     
