@@ -47,6 +47,7 @@ public class MediaController extends BaseController {
 					response().setHeader("Content-disposition", "attachment; filename=\"" + media.fileName + "\"");
 				}
 				else {
+                    Logger.info("andere Datei erkannt");
 					response().setHeader("Content-disposition", "inline; filename=\"" + media.fileName + "\"");
 				}
 				
@@ -59,16 +60,13 @@ public class MediaController extends BaseController {
      	}
     }
 
+
 	public static String setPrefix(Long id) {
 		Media m = Media.findById(id);
 		String prefix;
 
 		if (m.mimetype.endsWith("pdf")) {
 			prefix = "/assets/pdfjs/viewer.html?file=";
-		}
-		else if (m.mimetype.startsWith("video")) {
-			//todo for html 5 video snippet
-			prefix = "";
 		}
 		else {
 			prefix = "";

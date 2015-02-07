@@ -91,6 +91,7 @@
             <script type="text/javascript" src="@routes.Assets.at("javascripts/notification.js")"></script>
         }
 
+
         <script>
             $(".colorboxImage").colorbox({rel:'colorboxImage', photo:true});
             $(".colorboxAjax").colorbox();
@@ -108,7 +109,10 @@
 				if (resizeTimer) clearTimeout(resizeTimer);
 					resizeTimer = setTimeout(function() {
 					if ($('#cboxOverlay').is(':visible')) {
-						$.colorbox.load(true);
+						//$.colorbox.load(true);
+
+						$.colorbox.resize({width:"95%",height:"95%",});
+						//$.colorbox.reload();
 					}
 				}, 300)
 			});

@@ -48,8 +48,8 @@
 		slideshow: false,
 		slideshowAuto: true,
 		slideshowSpeed: 2500,
-		slideshowStart: "start slideshow",
-		slideshowStop: "stop slideshow",
+		slideshowStart: "Start Slideshow",
+		slideshowStop: "Stop Slideshow",
 		photoRegex: /\.(gif|png|jp(e|g|eg)|bmp|ico|webp|jxr|svg)((#|\?).*)?$/i,
 
 		// alternate image paths for high-res displays
@@ -58,12 +58,12 @@
 		retinaSuffix: '@2x.$1',
 
 		// internationalization
-		current: "image {current} of {total}",
-		previous: "previous",
-		next: "next",
-		close: "close",
-		xhrError: "This content failed to load.",
-		imgError: "This image failed to load.",
+		current: "Bild {current} von {total}",
+		previous: "Vorheriges",
+		next: "Nächstes",
+		close: "Schliessen",
+		xhrError: "Fehler beim Laden des Contents.",
+		imgError: "Fehler beim Laden des Bildes.",
 
 		// accessbility
 		returnFocus: true,
