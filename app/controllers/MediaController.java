@@ -334,7 +334,7 @@ public class MediaController extends BaseController {
 
                 med.temporarySender = Component.currentAccount();
                 med.group = group;
-                if (med.existsInGroup(group)) {
+                if (FolderController.mediaExistInFolder(med,folder)) {
                     return ok("Eine Datei mit dem Namen " + med.title + " existiert bereits");
 //                    flash("error", "Eine Datei mit dem Namen " + med.title + " existiert bereits");
 //                    return redirect(ret);

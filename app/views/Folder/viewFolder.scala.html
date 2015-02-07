@@ -59,7 +59,9 @@
             }
             <br />
             <br />
-            <input  href="#confirmCreateFolder" data-toggle="modal" class="btn btn-warning btn-sm" value="Ordner erstellen">
+            @if(folder.depth < FolderController.DEPTH) {
+                <input  href="#confirmCreateFolder" data-toggle="modal" class="btn btn-warning btn-sm" value="Ordner erstellen">
+            }
         }
 
         @if(Secured.uploadMedia(folder.group)) {

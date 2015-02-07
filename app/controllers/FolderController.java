@@ -47,7 +47,7 @@ public class FolderController extends BaseController {
         Group group = Group.findById(groupID);
         Form<Folder> filledForm = folderForm.bindFromRequest();
         String name = filledForm.data().get("name");
-        if(Secured.isMemberOfGroup(group, Component.currentAccount()) && groupID == parent.group.id) {
+        if(Secured.isMemberOfGroup(group, Component.currentAccount()) && groupID.equals(parent.group.id)) {
             if (allowToCreate(name,parent)) {
                 Folder folder = new Folder();
                 folder.name = name;
@@ -104,7 +104,7 @@ public class FolderController extends BaseController {
         Folder folder = Folder.findById(folderID);
         Group group = Group.findById(groupID);
 
-        if(Secured.viewFolder(folder) && groupID == folder.group.id) {
+        if(Secured.viewFolder(folder) && groupID.equals(folder.group.id)) {
             Folder groupFolder = getGroupFolder(group);
             List<Folder> path = getPathOfThisFolder(folder);
             Logger.debug("show Folder with ID:" + folderID);
@@ -121,7 +121,7 @@ public class FolderController extends BaseController {
         Logger.debug("use deleteFolder");
         Folder folder = Folder.findById(folderID);
         Folder parent = folder.parent;
-        if(Secured.deleteFolder(folder) && groupID == folder.group.id) {
+        if(Secured.deleteFolder(folder) && groupID.equals(folder.group.id)) {
             Logger.debug("Delete Folder[" + folder.id + "]...");
             deleteFolderContent(folder);
             Logger.debug("Folder[" + folder.id + "] -> deleted");
@@ -241,6 +241,16 @@ public class FolderController extends BaseController {
         return redirect("/group/" + groupID + "/folder/" + folderID);
     }
 
+    public static boolean mediaExistInFolder(Media m, Folder f) {
+        boolean exist = false;
+        List<Media> mediaList = f.files;
+        for (Media media: mediaList) {
+            if (media.title.equals(m.title))
+                exist = true;
+        }
+        return exist;
+    }
+
     private static void addFile2Zip(Media media, String filePath, ZipOutputStream zipOut) throws IOException{
         Logger.debug("add Filename: " + media.file.getName());
         byte[] buffer = new byte[4092];
@@ -302,6 +312,7 @@ public class FolderController extends BaseController {
         }
         return allow;
     }
+
 
     private static void deleteFolderContent(Folder folder){
         for (Media m: folder.files) {
