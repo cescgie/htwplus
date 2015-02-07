@@ -47,6 +47,7 @@ public class FolderController extends BaseController {
         Group group = Group.findById(groupID);
         Form<Folder> filledForm = folderForm.bindFromRequest();
         String name = filledForm.data().get("name");
+//        if (name.isEmpty()) {name = "Neuer Ordner";}
         if(Secured.isMemberOfGroup(group, Component.currentAccount()) && groupID.equals(parent.group.id)) {
             if (allowToCreate(name,parent)) {
                 Folder folder = new Folder();

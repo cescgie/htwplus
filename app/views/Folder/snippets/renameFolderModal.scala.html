@@ -12,7 +12,7 @@
 		@form(routes.FolderController.renameFolder(folder.group.id,folder.id)) {
 			<div class="controls">
 				<div class="input-group" rel="tooltip" data-original-title="Hier den neuen Namen eingeben (max. 30 Zeichen)!" data-placement="bottom" data-delay="500" data-container="body">
-					<input id="folderNameChange" class="form-control" type="text"name="name" placeholder="Ordner Name" />
+					<input id="folderNameChange" required class="form-control" type="text"name="name" placeholder="Ordner Name" />
 					<span class="input-group-btn">
 						<button type="submit" class="btn btn-warning">Umbenennen</button>
 					</span>
