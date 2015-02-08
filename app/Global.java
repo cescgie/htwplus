@@ -1,5 +1,7 @@
 import java.util.concurrent.TimeUnit;
 
+import controllers.FolderController;
+import models.Folder;
 import models.services.EmailService;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
@@ -164,6 +166,21 @@ public class Global extends GlobalSettings {
 			JPA.withTransaction(new play.libs.F.Callback0() {
 				@Override
 				public void invoke() throws Throwable {
+
+                    //create root-Folder if not exists
+                    Folder rootFolder = Folder.findByTitle("root");
+                    if (rootFolder == null) {
+                        Logger.debug("Create Root Folder...");
+                        rootFolder = new Folder();
+                        rootFolder.name = "root";
+                        rootFolder.depth = 0;
+                        rootFolder.parent = null;
+                        rootFolder.group = null;
+                        rootFolder.owner = null;
+                        rootFolder.create();
+                        Logger.debug("Root Folder -> created");
+                    }
+
                     // create Admin account if none exists
                     Account admin = Account.findByEmail(adminMail);
                     if (admin == null) {
@@ -185,6 +202,20 @@ public class Global extends GlobalSettings {
                         group.groupType = GroupType.close;
                         group.description = "for HTWplus Admins only";
                         group.createWithGroupAccount(admin);
+
+                        //create Group-Folder if not exists
+                        Folder groupFolder = Folder.findByTitle(group.title);
+                        if (groupFolder == null) {
+                            Logger.debug("Create Group Folder...");
+                            groupFolder = new Folder();
+                            groupFolder.name = group.title;
+                            groupFolder.depth = rootFolder.depth + 1;
+                            groupFolder.parent = rootFolder;
+                            groupFolder.group = group;
+                            groupFolder.owner =  group.owner;
+                            groupFolder.create();
+                            Logger.debug("Group Folder -> created");
+                        }
                     }
 
                     // create Feedback group if none exists
@@ -195,6 +226,19 @@ public class Global extends GlobalSettings {
                         group.groupType = GroupType.open;
                         group.description = "Du hast Wünsche, Ideen, Anregungen, Kritik oder Probleme mit der Seite? Hier kannst du es loswerden!";
                         group.createWithGroupAccount(admin);
+                        //create Group-Folder if not exists
+                        Folder groupFolder = Folder.findByTitle(group.title);
+                        if (groupFolder == null) {
+                            Logger.debug("Create Group Folder...");
+                            groupFolder = new Folder();
+                            groupFolder.name = group.title;
+                            groupFolder.depth = rootFolder.depth + 1;
+                            groupFolder.parent = rootFolder;
+                            groupFolder.group = group;
+                            groupFolder.owner =  group.owner;
+                            groupFolder.create();
+                            Logger.debug("Group Folder -> created");
+                        }
                     }
                     // Generate indexes
 				}

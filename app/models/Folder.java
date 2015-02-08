@@ -66,5 +66,18 @@ public class Folder extends BaseModel{
             JPA.em().remove(this);
     }
 
+    public static Folder findByTitle(String title) {
+        @SuppressWarnings("unchecked")
+        List<Folder> folders = (List<Folder>) JPA.em()
+                .createQuery("FROM Folder f WHERE f.name = ?1")
+                .setParameter(1, title).getResultList();
+
+        if (folders.isEmpty()) {
+            return null;
+        } else {
+            return folders.get(0);
+        }
+    }
+
 }
 

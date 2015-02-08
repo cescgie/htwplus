@@ -113,6 +113,7 @@ public class Group extends BaseNotifiable implements INotifiable {
 	public void createWithGroupAccount(Account account) {
 		this.owner = account;
 		this.create();
+
 		GroupAccount groupAccount = new GroupAccount(account, this,
 				LinkType.establish);
 		groupAccount.create();
