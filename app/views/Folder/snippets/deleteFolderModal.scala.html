@@ -1,4 +1,7 @@
-@(f: Folder)
+@(folder: Folder)
+@import helper._
+@import models._
+
 <div class="modal-dialog">
 	<div class="modal-content">
 		<div class="modal-header">
@@ -6,11 +9,13 @@
 			<h4 class="modal-title" id="confirmModalLabel">Ordner löschen</h4>
 		</div>
 		<div class="modal-body">
-			Möchtest du den Ordner <b>@f.name</b> und den <b>gesamten</b> Inhalt wirklich löschen?
+			Möchtest du den Ordner <b>@folder.name</b> und den <b>gesamten</b> Inhalt wirklich löschen?
 		</div>
 		<div class="modal-footer">
-			<a type="button"  class="btn btn-warning" href="@routes.FolderController.deleteFolder(f.group.id,f.id)">Ja</a>
-			<button type="button" class="btn btn-default" data-dismiss="modal">Nein</button>
+            @form(routes.FolderController.deleteFolder(folder.group.id,folder.id)) {
+            <button type="submit" class="btn btn-warning">Ja</button>
+			<button type="reset" class="btn btn-default" data-dismiss="modal">Nein</button>
+            }
 		</div>
 	</div>
 </div>

@@ -41,35 +41,40 @@ public class FolderController extends BaseController {
     private static final int MAX_NAME_LENGTH = 30;
     final static int PAGE = 1;
 
+
     @Transactional
     public static Result createFolder(Long groupID, Long parentID) {
         Folder parent = Folder.findById(parentID);
         Group group = Group.findById(groupID);
         Form<Folder> filledForm = folderForm.bindFromRequest();
         String name = filledForm.data().get("name");
-//        if (name.isEmpty()) {name = "Neuer Ordner";}
-        if(Secured.isMemberOfGroup(group, Component.currentAccount()) && groupID.equals(parent.group.id)) {
-            if (allowToCreate(name,parent)) {
-                Folder folder = new Folder();
-                folder.name = name;
-                folder.group = parent.group;
-                folder.parent = parent;
-                folder.depth = parent.depth + 1;
-                folder.owner =  Component.currentAccount();
-                folder.create();
-            } else {
-                if (name.length() > MAX_NAME_LENGTH) {
-                    flash("error", "Der eingegebene Ordnername ist zu lang (max. 30 Zeichen)");
-                } else  {
-                    flash("error", "Ein Ordner mit diesem Namen existiert bereits!");
+        if (!name.isEmpty()) {
+            if (Secured.isMemberOfGroup(group, Component.currentAccount()) && groupID.equals(parent.group.id)) {
+                if (allowToCreate(name, parent)) {
+                    Folder folder = new Folder();
+                    folder.name = name;
+                    folder.group = parent.group;
+                    folder.parent = parent;
+                    folder.depth = parent.depth + 1;
+                    folder.owner = Component.currentAccount();
+                    folder.create();
+                } else {
+                    if (name.length() > MAX_NAME_LENGTH) {
+                        flash("error", "Der eingegebene Ordnername ist zu lang (max. 30 Zeichen)");
+                    } else {
+                        flash("error", "Ein Ordner mit diesem Namen existiert bereits!");
+                    }
+                    return redirectFolder(groupID, parentID);
                 }
-                return redirectFolder(groupID, parentID);
+                flash("success", "Der Ordner \"" + name + "\" wurde erfolgreich angelegt");
+                return redirectFolder(parent.group.id, parentID);
+            } else {
+                flash("error", "Dazu hast du keine Berechtigung!");
+                return redirect(controllers.routes.Application.index());
             }
-            flash("success", "Der Ordner \"" + name + "\" wurde erfolgreich angelegt");
-            return redirectFolder(parent.group.id,parentID);
         } else {
-            flash("error", "Dazu hast du keine Berechtigung!");
-            return redirect(controllers.routes.Application.index());
+            flash("error", "Du musst dem Ordner einen Namen geben!");
+            return redirectFolder(parent.group.id, parentID);
         }
     }
 
@@ -121,16 +126,21 @@ public class FolderController extends BaseController {
     public static Result deleteFolder(Long groupID,Long folderID) {
         Logger.debug("use deleteFolder");
         Folder folder = Folder.findById(folderID);
-        Folder parent = folder.parent;
-        if(Secured.deleteFolder(folder) && groupID.equals(folder.group.id)) {
-            Logger.debug("Delete Folder[" + folder.id + "]...");
-            deleteFolderContent(folder);
-            Logger.debug("Folder[" + folder.id + "] -> deleted");
+        if(folder != null) {
+            Folder parent = folder.parent;
+            if (Secured.deleteFolder(folder) && groupID.equals(folder.group.id)) {
+                Logger.debug("Delete Folder[" + folder.id + "]...");
+                deleteFolderContent(folder);
+                Logger.debug("Folder[" + folder.id + "] -> deleted");
+            } else {
+                flash("error", "Dazu hast du keine Berechtigung!");
+            }
+            flash("success", "Der Ordner \"" + folder.name + "\" wurde erfolgreich gelöscht");
+            return redirect(controllers.routes.FolderController.listFolder(groupID, parent.id));
         } else {
-            flash("error", "Dazu hast du keine Berechtigung!");
+            flash("error", "Was willst DU?");
+            return redirect(controllers.routes.Application.index());
         }
-        flash("success", "Der Ordner \"" + folder.name + "\" wurde erfolgreich gelöscht");
-        return redirect(controllers.routes.FolderController.listFolder(groupID, parent.id));
     }
 
     @Transactional
@@ -203,7 +213,7 @@ public class FolderController extends BaseController {
         String filename = group.title + "-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + ".zip";
         String filePath = "";
         String[] selection = request().body().asFormUrlEncoded().get("selection");
-        Boolean selectionHasFiles = true;
+        Boolean selectionHasNoFiles = true;
         String selectetFolder = "";
         String tmpPath = Play.application().configuration().getString("media.tempPath");
         File file = File.createTempFile(tempPrefix, ".tmp", new File(tmpPath));
@@ -216,7 +226,7 @@ public class FolderController extends BaseController {
                 Media media = Media.findById(Long.parseLong(s));
                 Folder folder = Folder.findById(Long.parseLong(s));
                 if (media != null) {
-                    selectionHasFiles = false;
+                    selectionHasNoFiles = false;
                     addFile2Zip(media,filePath,zipOut);
                 } else {
                     selectetFolder = folder.name;
@@ -229,7 +239,7 @@ public class FolderController extends BaseController {
         }
         zipOut.flush();
         zipOut.close();
-        if(selectionHasFiles && selection.length == 1) {
+        if(selectionHasNoFiles && selection.length == 1) {
             filename = selectetFolder + ".zip";
         }
         Logger.debug(filename + " created");

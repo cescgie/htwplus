@@ -13,6 +13,16 @@
     }
 	<!-- End confirmRenameMediaModal -->
 
+    <!-- Start confirmDeleteFolderModal -->
+    @for(f <- folderList){
+        @if(Secured.deleteFolder(f)) {
+        <div class="modal fade" id="confirmDeleteMedia@f.id" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+            @views.html.Folder.snippets.deleteFolderModal(f)
+        </div>
+        }
+    }
+    <!-- End confirmDeleteFolderModal -->
+
 <table class="table table-hover table-condensed">
 	<thead>
 		<tr>

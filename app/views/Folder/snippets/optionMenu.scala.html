@@ -2,15 +2,6 @@
 @import helper._
 @import models._
 
-
-    <!-- Start confirmDeleteFolderModal -->
-    @if(Secured.deleteFolder(folder)) {
-        <div class="modal fade" id="confirmDeleteMedia@folder.id" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
-        @views.html.Folder.snippets.deleteFolderModal(folder)
-        </div>
-    }
-    <!-- End confirmDeleteFolderModal -->
-
     <div class="dropdown">
         <a class="dropdown-toggle" id="dropdownMenu" data-toggle="dropdown">
             <span class="glyphicon glyphicon-chevron-down"></span>

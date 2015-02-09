@@ -74,13 +74,13 @@ GET		/media/:id							controllers.MediaController.view(id:Long,keyword:String)
 GET 	/media/:id/delete					controllers.MediaController.delete(id:Long)
 
 # Folder (Project)
-GET    /group/:gId/folder/:fId          controllers.FolderController.listFolder(gId:Long, fId: Long)
-POST   /group/:gId/folder/:fId/cf       controllers.FolderController.createFolder(gId:Long, fId:Long)
-GET    /group/:gId/folder/:fId/df       controllers.FolderController.deleteFolder(gId:Long, fId:Long)
-POST   /group/:gId/folder/:fId/upload	controllers.MediaController.upload(gId: Long, fId: Long)
-POST   /group/:gId/folder/:fId/mDL	    controllers.FolderController.multiView(gId:Long, fId:Long)
-GET   /group/:gId/folder/:fId/sDL	    controllers.FolderController.singleDownload(gId:Long, fId:Long)
-POST   /group/:gId/folder/:fId/rf   	controllers.FolderController.renameFolder(gId:Long, fId:Long)
+GET     /group/:gId/folder/:fId             controllers.FolderController.listFolder(gId:Long, fId: Long)
+POST    /group/:gId/folder/:fId/cf          controllers.FolderController.createFolder(gId:Long, fId:Long)
+POST    /group/:gId/folder/:fId/df          controllers.FolderController.deleteFolder(gId:Long, fId:Long)
+POST    /group/:gId/folder/:fId/upload	    controllers.MediaController.upload(gId: Long, fId: Long)
+POST    /group/:gId/folder/:fId/mDL	        controllers.FolderController.multiView(gId:Long, fId:Long)
+GET     /group/:gId/folder/:fId/sDL	        controllers.FolderController.singleDownload(gId:Long, fId:Long)
+POST    /group/:gId/folder/:fId/rf   	    controllers.FolderController.renameFolder(gId:Long, fId:Long)
 
 
 #Notification
