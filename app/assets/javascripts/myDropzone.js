@@ -28,7 +28,7 @@ Dropzone.options.fileuploadForm = {
         fileuploadForm = this;
         fileuploadForm.on("queuecomplete", function(file) {
             localStorage.setItem('flash',fileuploadForm.getLastMessage());
-            window.location.reload();
+            window.location.assign(window.location.pathname);
         });
 
         $("#send-button").click(function (e) {
