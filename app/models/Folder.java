@@ -5,7 +5,7 @@ import models.base.BaseModel;
 import play.db.jpa.JPA;
 import java.util.List;
 
-/**
+/***
  * Created by meichris on 02.12.14.
  */
 
@@ -26,51 +26,66 @@ public class Folder extends BaseModel{
     
     public static final String PARAM_GROUP_ID = "id";
 
-    /*The folders name*/
+    /**
+    The folders name
+    */
     @Column(name = "name")
     public String name;
-    /*The folders depth*/
+    /**
+    The folders depth
+    */
     @Column(name = "depth")
     public int depth;
-    /*The folders parent*/
+    /**
+    The folders parent
+    */
     @ManyToOne
     public Folder parent;
-    /*The folders group*/
+    /**
+    The folders group
+    */
     @ManyToOne
     public Group group;
-    /*The folders owner*/
+    /**
+    The folders owner
+    */
     @ManyToOne
     public Account owner;
-    /*Lists the folders files*/
+    /**
+    Lists the folders files
+    */
     @OneToMany(mappedBy = "inFolder"/*, cascade=CascadeType.REMOVE*/)
     @OrderBy("createdAt DESC")
     public List<Media> files;
-    /*Lists the folders childs*/
+    /** 
+    Lists the folders childs 
+    */
     @OneToMany(mappedBy = "parent"/*, cascade=CascadeType.REMOVE*/)
     @OrderBy("createdAt DESC")
     public List<Folder> childs;
-    /*Searches in the database for the delivered folder id and returns the folder 
+    /**
+    Searches in the database for the delivered folder id and returns the folder 
     @param id the folders id
     @return the folder
     */
     public static Folder findById(long id) {
         return JPA.em().find(Folder.class, id);
     }
-    /*
+    /**
     Creates a databse entry (of type folder)
     */
     @Override
     public void create() {
             JPA.em().persist(this);
     }
-    /*
+    /**
     Updates a databse entry (of type folder)
     */
     @Override
     public void update() {
         JPA.em().merge(this);
     }
-    /*
+    /**
     Deletes a databse entry (of type folder)
     */
     @Override
@@ -78,7 +93,7 @@ public class Folder extends BaseModel{
             JPA.em().remove(this);
     }
 
-    /*
+    /**
     Returns a folder defined by its delivered name
     @param title the folders title
     @return the folder

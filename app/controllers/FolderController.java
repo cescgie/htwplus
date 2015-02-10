@@ -29,7 +29,7 @@ import java.util.zip.ZipOutputStream;
 
 import static play.data.Form.form;
 
-/**
+/***
  * Created by meichris on 06.12.14.
  */
 @Security.Authenticated(Secured.class)
@@ -41,7 +41,7 @@ public class FolderController extends BaseController {
     private static final int MAX_NAME_LENGTH = 30;
     final static int PAGE = 1;
 
-/*
+/**
     Creates a folder and returns a Result
 
     @param groupID The Group ID
@@ -94,14 +94,14 @@ public class FolderController extends BaseController {
             return redirect(controllers.routes.FolderController.listFolder(group.id, groupFolder.id));
         }
     }
-    /*
-    * Renames a Folder
-    * @param argName the delivered Name
-    * @param folder the delivered Folder
-    * @return listFolder Result, consisting of the parent folders group id an the parent folders id<br>
+    /**
+     Renames a Folder
+     @param argName the delivered Name
+     @param folder the delivered Folder
+     @return listFolder Result, consisting of the parent folders group id an the parent folders id<br>
               redirect to the index page, if access is not allowed <br>
               redirect to the current folders parent folder if the deserved folder doesnt exist 
-    * **/
+     **/
     @Transactional
     public static Result renameFolder(Long groupID, Long folderID) {
         Group group = Group.findById(groupID);
@@ -133,16 +133,16 @@ public class FolderController extends BaseController {
             return redirect(controllers.routes.FolderController.listFolder(group.id, groupFolder.id));
         }
     }
-     /*
-    * Lists existing Folders
-    *
-    * @param groupID the groupID
-    * @param folderID the folderID
-    *
-    * @return ok Result, invoking a rendered view if access allowed <br>
-    *         Redirects to the Index Page if access isn't allowed
-    *
-    *
+     /**
+    Lists existing Folders
+    
+     @param groupID the groupID
+     @param folderID the folderID
+    
+     @return ok Result, invoking a rendered view if access allowed <br>
+             Redirects to the Index Page if access isn't allowed
+    
+    
     **/
     @Transactional
     public static Result listFolder(Long groupID, Long folderID) {
@@ -171,7 +171,7 @@ public class FolderController extends BaseController {
         }
     }
 
-    /*
+    /**
     Deletes a certain folder
     @param groupID the groupID
     @param folderID the folderID
@@ -200,7 +200,7 @@ public class FolderController extends BaseController {
             return redirect(controllers.routes.FolderController.listFolder(group.id, groupFolder.id));
         }
     }
-    /*
+    /**
     Creates a GroupFolder (as a first child in tree hirarchy of the root folder)
     @param group the delivered group
     @return the groups "root" folder
@@ -222,7 +222,7 @@ public class FolderController extends BaseController {
         }
         return groupFolder;
     }
-    /*
+    /**
     Creates and returns a groop folder folder if none exists
     @param group the group for which a folder shall be created
     @return a group folder
@@ -240,7 +240,7 @@ public class FolderController extends BaseController {
         }
         return groupFolder;
     }
-    /*
+    /**
     Provides the possibility to download a folder with its contents
     @param groupID the groupID
     @param folderID the folderID
@@ -278,7 +278,7 @@ public class FolderController extends BaseController {
             return redirect(controllers.routes.Application.index());
         }
     }
-    /*
+    /**
 
     
     Provides the possibility to download selected files and/or folders (with its contents)
@@ -352,7 +352,7 @@ public class FolderController extends BaseController {
             return redirect(controllers.routes.Application.index());
         }
     }
-    /*
+    /**
     Redirects to the current folders parent folder
     @param groupID the groupID
     @param folderID the folderID
@@ -362,7 +362,7 @@ public class FolderController extends BaseController {
     public static Result redirectFolder(Long groupID, Long folderID) {
         return redirect("/group/" + groupID + "/folder/" + folderID);
     }
-    /*
+    /**
     Checks whether there is content in a folder 
     @param m the Media
     @param f the Folder
@@ -377,7 +377,7 @@ public class FolderController extends BaseController {
         }
         return exist;
     }
-    /*
+    /**
     Adds a file to the delivered ZipOutputstream
     @param media the delivered media
     @param filePath the delivered file path
@@ -396,7 +396,7 @@ public class FolderController extends BaseController {
         fis.close();
         zipOut.closeEntry();
     }
-    /*
+    /**
     Adds a folder to the delivered ZipOutputstream
     
     @param filePath the delivered file path
@@ -422,7 +422,7 @@ public class FolderController extends BaseController {
             }
         }
     }
-    /*
+    /**
     Returns the path of the delivered folder
     @param folder the delivered folder
     @return the path of the delivered folder
@@ -439,7 +439,7 @@ public class FolderController extends BaseController {
         }
         return path;
     }
-    /*
+    /**
     Checks whether it is allowed to create a folder
     @param argName the delivered name (which the new folder should get)
     @param parent the folders parent folder
@@ -460,7 +460,7 @@ public class FolderController extends BaseController {
         return allow;
     }
 
-    /*
+    /**
     Deletes the delivered folders content
     @param folder the delivered folder
     */
@@ -473,7 +473,7 @@ public class FolderController extends BaseController {
         }
         folder.delete();
     }
-    /*
+    /**
     Creates a root folder
     @return the root folder
     */
