@@ -42,9 +42,11 @@ public class Folder extends BaseModel{
     public Account owner;
 
     @OneToMany(mappedBy = "inFolder"/*, cascade=CascadeType.REMOVE*/)
+    @OrderBy("createdAt DESC")
     public List<Media> files;
 
     @OneToMany(mappedBy = "parent"/*, cascade=CascadeType.REMOVE*/)
+    @OrderBy("createdAt DESC")
     public List<Folder> childs;
 
     public static Folder findById(long id) {
