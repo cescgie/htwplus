@@ -70,8 +70,9 @@ GET		/friend/:friendshipId/cancel		controllers.FriendshipController.cancelFriend
 # Media
 #POST 	/media/:target/upload/:id			controllers.MediaController.upload(target:String,id:Long)
 POST	/media/multiple/:target/:id			controllers.MediaController.multiView(target:String,id:Long)
-GET		/media/:id/:keyword					controllers.MediaController.view(id:Long,keyword:String)
 GET 	/media/:id/delete					controllers.MediaController.delete(id:Long)
+# /media/:id/:keyword als letzten Eintrag
+GET		/media/:id/:keyword					controllers.MediaController.view(id:Long,keyword:String)
 
 # Folder (Project)
 GET     /group/:gId/folder/:fId             controllers.FolderController.listFolder(gId:Long, fId: Long)
