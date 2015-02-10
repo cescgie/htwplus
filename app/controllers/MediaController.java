@@ -50,7 +50,8 @@ public class MediaController extends BaseController {
                     Logger.info("andere Datei erkannt");
 					response().setHeader("Content-disposition", "inline; filename=\"" + media.fileName + "\"");
 				}
-				
+
+				Logger.info("file = " + media.title + " type = " + media.mimetype);
 				Logger.debug("return ok(media.file)");
 				return ok(media.file);
 			}
