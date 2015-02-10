@@ -79,28 +79,34 @@ public class FolderController extends BaseController {
     }
 
     @Transactional
-    public static Result renameFolder(Long groupId, Long folderId) {
-        Group group = Group.findById(groupId);
-        Folder folder = Folder.findById(folderId);
-        if(Secured.renameFolder(folder)) {
-            String oldName = folder.name;
-            Form<Folder> filledForm = folderForm.bindFromRequest();
-            String newName = filledForm.data().get("name");
-            if (allowToCreate(newName, folder.parent)) {
-                folder.name = newName;
-                flash("success", "Der Ordner \"" + oldName + "\" wurde erfolgreich in \"" + newName + "\" umbenannt");
-                return listFolder(group.id, folder.parent.id);
-            } else {
-                if (newName.length() > MAX_NAME_LENGTH) {
-                    flash("error", "Der eingegebene Ordnername ist zu lang (max. 30 Zeichen)");
-                } else  {
-                    flash("error", "Ein Ordner mit diesem Namen existiert bereits!");
+    public static Result renameFolder(Long groupID, Long folderID) {
+        Group group = Group.findById(groupID);
+        Folder folder = Folder.findById(folderID);
+        Folder groupFolder = getGroupFolder(group);
+        if(folder != null) {
+            if (Secured.renameFolder(folder)) {
+                String oldName = folder.name;
+                Form<Folder> filledForm = folderForm.bindFromRequest();
+                String newName = filledForm.data().get("name");
+                if (allowToCreate(newName, folder.parent)) {
+                    folder.name = newName;
+                    flash("success", "Der Ordner \"" + oldName + "\" wurde erfolgreich in \"" + newName + "\" umbenannt");
+                    return listFolder(group.id, folder.parent.id);
+                } else {
+                    if (newName.length() > MAX_NAME_LENGTH) {
+                        flash("error", "Der eingegebene Ordnername ist zu lang (max. 30 Zeichen)");
+                    } else {
+                        flash("error", "Ein Ordner mit diesem Namen existiert bereits!");
+                    }
+                    return listFolder(folder.parent.group.id, folder.parent.id);
                 }
-                return listFolder(folder.parent.group.id, folder.parent.id);
+            } else {
+                flash("error", "Dazu hast du keine Berechtigung!");
+                return redirect(controllers.routes.Application.index());
             }
         } else {
-            flash("error", "Dazu hast du keine Berechtigung!");
-            return redirect(controllers.routes.Application.index());
+            flash("error", "Den Ordner gibt es nicht mehr!");
+            return redirect(controllers.routes.FolderController.listFolder(group.id, groupFolder.id));
         }
     }
 
@@ -109,9 +115,8 @@ public class FolderController extends BaseController {
         Form<Media> mediaForm = Form.form(Media.class);
         Folder folder = Folder.findById(folderID);
         Group group = Group.findById(groupID);
-
-        if(Secured.viewFolder(folder) && groupID.equals(folder.group.id)) {
-            Folder groupFolder = getGroupFolder(group);
+        Folder groupFolder = getGroupFolder(group);
+        if (Secured.viewFolder(folder) && groupID.equals(folder.group.id)) {
             List<Folder> path = getPathOfThisFolder(folder);
             Logger.debug("show Folder with ID:" + folderID);
             Navigation.set(Navigation.Level.GROUPS, "Media", groupFolder.group.title, controllers.routes.GroupController.view(groupFolder.group.id, PAGE));
@@ -126,6 +131,8 @@ public class FolderController extends BaseController {
     public static Result deleteFolder(Long groupID,Long folderID) {
         Logger.debug("use deleteFolder");
         Folder folder = Folder.findById(folderID);
+        Group group = Group.findById(groupID);
+        Folder groupFolder = getGroupFolder(group);
         if(folder != null) {
             Folder parent = folder.parent;
             if (Secured.deleteFolder(folder) && groupID.equals(folder.group.id)) {
@@ -138,8 +145,8 @@ public class FolderController extends BaseController {
             flash("success", "Der Ordner \"" + folder.name + "\" wurde erfolgreich gelöscht");
             return redirect(controllers.routes.FolderController.listFolder(groupID, parent.id));
         } else {
-            flash("error", "Was willst DU?");
-            return redirect(controllers.routes.Application.index());
+            flash("error", "Den Ordner gibt es nicht mehr!");
+            return redirect(controllers.routes.FolderController.listFolder(group.id, groupFolder.id));
         }
     }
 
@@ -176,76 +183,97 @@ public class FolderController extends BaseController {
     }
 
     @Transactional(readOnly=true)
-    public static Result singleDownload(Long gID, Long fID) throws IOException {
+    public static Result singleDownload(Long groupID, Long folderID) throws IOException {
         Logger.debug("use multiView");
-        Group group = Group.findById(gID);
-        Logger.debug("Group[" + group.id + "]");
-        if(!Secured.viewGroup(group)){
+        Folder folder = Folder.findById(folderID);
+        Group group = Group.findById(groupID);
+        Folder groupFolder = getGroupFolder(group);
+        if (Secured.viewGroup(group)) {
+            Logger.debug("Group[" + group.id + "]");
+            if (folder != null) {
+                String tmpPath = Play.application().configuration().getString("media.tempPath");
+                File file = File.createTempFile(tempPrefix, ".tmp", new File(tmpPath));
+                ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(file));
+                zipOut.setLevel(Deflater.NO_COMPRESSION);
+                addFolder2Zip("", folder, zipOut);
+                zipOut.flush();
+                zipOut.close();
+                String filename = folder.name + ".zip";
+                Logger.debug(filename + " created");
+                response().setHeader("Content-disposition", "attachment; filename=\"" + filename + "\"");
+                Logger.debug("return ok(file)");
+                return ok(file);
+            } else {
+                flash("error", "Den Ordner gibt es nicht mehr!");
+                return redirect(controllers.routes.FolderController.listFolder(group.id, groupFolder.id));
+            }
+        } else {
             Logger.debug("Secured.viewGroup: false");
             return redirect(controllers.routes.Application.index());
         }
-        String tmpPath = Play.application().configuration().getString("media.tempPath");
-        File file = File.createTempFile(tempPrefix, ".tmp", new File(tmpPath));
-        ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(file));
-        zipOut.setLevel(Deflater.NO_COMPRESSION);
-        Folder folder = Folder.findById(fID);
-        addFolder2Zip("", folder, zipOut);
-        zipOut.flush();
-        zipOut.close();
-        String filename = folder.name + ".zip";
-        Logger.debug(filename + " created");
-        response().setHeader("Content-disposition", "attachment; filename=\"" + filename + "\"");
-        Logger.debug("return ok(file)");
-        return ok(file);
     }
 
     @Transactional(readOnly=true)
-    public static Result multiView(Long gID, Long fID) throws IOException {
+    public static Result multiView(Long groupID, Long folderID) throws IOException {
 
         Logger.debug("use multiView");
-        Group group = Group.findById(gID);
-        Logger.debug("Group[" + group.id + "]");
-        if(!Secured.viewGroup(group)){
-            Logger.debug("Secured.viewGroup: false");
-            return redirect(controllers.routes.Application.index());
-        }
+        Folder currentfolder = Folder.findById(folderID);
+        Group group = Group.findById(groupID);
+        Folder groupFolder = getGroupFolder(group);
+        String fehlercode = "";
+        if (Secured.viewGroup(group)) {
+            Logger.debug("Group[" + group.id + "]");
+            String[] selection = request().body().asFormUrlEncoded().get("selection");
+            if (selection != null) {
+                String filename = group.title + "-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + ".zip";
+                String filePath = "";
+                Boolean selectionHasNoFiles = true;
+                String selectetFolder = "";
+                String tmpPath = Play.application().configuration().getString("media.tempPath");
+                File file = File.createTempFile(tempPrefix, ".tmp", new File(tmpPath));
 
-        String filename = group.title + "-" + new SimpleDateFormat("yyyy-MM-dd").format(new Date()) + ".zip";
-        String filePath = "";
-        String[] selection = request().body().asFormUrlEncoded().get("selection");
-        Boolean selectionHasNoFiles = true;
-        String selectetFolder = "";
-        String tmpPath = Play.application().configuration().getString("media.tempPath");
-        File file = File.createTempFile(tempPrefix, ".tmp", new File(tmpPath));
+                ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(file));
+                zipOut.setLevel(Deflater.NO_COMPRESSION);
 
-        ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(file));
-        zipOut.setLevel(Deflater.NO_COMPRESSION);
-
-        if(selection != null) {
-            for (String s : selection) {
-                Media media = Media.findById(Long.parseLong(s));
-                Folder folder = Folder.findById(Long.parseLong(s));
-                if (media != null) {
-                    selectionHasNoFiles = false;
-                    addFile2Zip(media,filePath,zipOut);
-                } else {
-                    selectetFolder = folder.name;
-                    addFolder2Zip(filePath, folder, zipOut);
+                for (String s : selection) {
+                    Logger.debug("Selection[" + s + "]");
+                    Media media = Media.findById(Long.parseLong(s));
+                    Folder folder = Folder.findById(Long.parseLong(s));
+                    if (media != null) {
+                        Logger.debug("Selection[" + s + "] media");
+                        selectionHasNoFiles = false;
+                        addFile2Zip(media, filePath, zipOut);
+                    } else if(folder != null){
+                        Logger.debug("Selection[" + s + "] folder");
+                        selectetFolder = folder.name;
+                        addFolder2Zip(filePath, folder, zipOut);
+                    } else if(media == null && folder == null) {
+                        Logger.debug("Selection[" + s + "] failed");
+                        fehlercode = "Achtung, eine/mehrere der gewähten Dateien bzw. Order wurde in der Zwischenzeit gelöscht !! Treffen Sie bitte eine neue Auswahl.";
+                        }
+                    }
+                zipOut.flush();
+                zipOut.close();
+                if (selectionHasNoFiles && selection.length == 1) {
+                    filename = selectetFolder + ".zip";
                 }
+                Logger.debug(filename + " created");
+                response().setHeader("Content-disposition", "attachment; filename=\"" + filename + "\"");
+                Logger.debug("return ok(file)");
+
+                if (!fehlercode.isEmpty()) {
+                    flash("info", fehlercode);
+                    return redirect(controllers.routes.FolderController.listFolder(group.id, currentfolder.id));
+                }
+                return ok(file);
+            } else {
+                flash("error", "Bitte wähle mindestens eine Datei aus.");
+                return redirect(controllers.routes.FolderController.listFolder(group.id, currentfolder.id));
             }
         } else {
-            flash("error", "Bitte wähle mindestens eine Datei aus.");
-            return redirect(controllers.routes.FolderController.listFolder(gID,fID));
+                Logger.debug("Secured.viewGroup: false");
+            return redirect(controllers.routes.Application.index());
         }
-        zipOut.flush();
-        zipOut.close();
-        if(selectionHasNoFiles && selection.length == 1) {
-            filename = selectetFolder + ".zip";
-        }
-        Logger.debug(filename + " created");
-        response().setHeader("Content-disposition", "attachment; filename=\"" + filename + "\"");
-        Logger.debug("return ok(file)");
-        return ok(file);
     }
 
     public static Result redirectFolder(Long groupID, Long folderID) {
