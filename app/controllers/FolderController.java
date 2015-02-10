@@ -71,15 +71,15 @@ public class FolderController extends BaseController {
                     flash("success", "Der Ordner \"" + name + "\" wurde erfolgreich angelegt");
                     return redirectFolder(parent.group.id, parentID);
                 } else {
-                    flash("error", "Dazu hast du keine Berechtigung!");
+                    flash("error", "Dazu hast Du keine Berechtigung!");
                     return redirect(controllers.routes.Application.index());
                 }
             } else {
-                flash("error", "Du musst dem Ordner einen Namen geben!");
+                flash("error", "Du musst den Ordner benennen!");
                 return redirectFolder(parent.group.id, parentID);
             }
         } else {
-            flash("error", "Der Ordner, auf den Sie zugreifen wollen, existiert nicht mehr!");
+            flash("error", "Der Ordner, auf den Du zugreifen wolltest, existiert nicht mehr!");
             return redirect(controllers.routes.FolderController.listFolder(group.id, groupFolder.id));
         }
     }
@@ -107,11 +107,11 @@ public class FolderController extends BaseController {
                     return listFolder(folder.parent.group.id, folder.parent.id);
                 }
             } else {
-                flash("error", "Dazu hast du keine Berechtigung!");
+                flash("error", "Dazu hast Du keine Berechtigung!");
                 return redirect(controllers.routes.Application.index());
             }
         } else {
-            flash("error", "Der Ordner, auf den Sie zugreifen wollen, existiert nicht mehr!");
+            flash("error", "Der Ordner, auf den Du zugreifen wolltest, existiert nicht mehr!");
             return redirect(controllers.routes.FolderController.listFolder(group.id, groupFolder.id));
         }
     }
@@ -132,13 +132,13 @@ public class FolderController extends BaseController {
                 return ok(views.html.Folder.viewFolder.render(path, folder, folderForm, mediaForm));
             } else {
                 Logger.debug("show Group-Folder with ID:" + folderID);
-                flash("error", "Der Ordner, auf den Sie zugreifen wollen, existiert nicht mehr!");
+                flash("error", "Der Ordner, auf den Du zugreifen wolltest, existiert nicht mehr!");
                 return redirect(controllers.routes.FolderController.listFolder(group.id, groupFolder.id));
             }
 
         } else {
             Logger.debug("show Index()");
-            flash("error", "Für den Zugang zu diesem Ordner hast du keine Berechtigung!");
+            flash("error", "Für den Zugang zu diesem Ordner hast Du keine Berechtigung!");
             return redirect(controllers.routes.Application.index());
         }
     }
@@ -157,12 +157,12 @@ public class FolderController extends BaseController {
                 deleteFolderContent(folder);
                 Logger.debug("Folder[" + folder.id + "] -> deleted");
             } else {
-                flash("error", "Dazu hast du keine Berechtigung!");
+                flash("error", "Dazu hast Du keine Berechtigung!");
             }
             flash("success", "Der Ordner \"" + folder.name + "\" wurde erfolgreich gelöscht");
             return redirect(controllers.routes.FolderController.listFolder(groupID, parent.id));
         } else {
-            flash("error", "Der Ordner, auf den Sie zugreifen wollen, existiert nicht mehr!");
+            flash("error", "Der Ordner, auf den Du zugreifen wolltest, existiert nicht mehr!");
             return redirect(controllers.routes.FolderController.listFolder(group.id, groupFolder.id));
         }
     }
@@ -221,7 +221,7 @@ public class FolderController extends BaseController {
                 Logger.debug("return ok(file)");
                 return ok(file);
             } else {
-                flash("error", "Der Ordner, auf den Sie zugreifen wollen, existiert nicht mehr!");
+                flash("error", "Der Ordner, auf den Du zugreifen wolltest, existiert nicht mehr!");
                 return redirect(controllers.routes.FolderController.listFolder(group.id, groupFolder.id));
             }
         } else {
@@ -266,7 +266,7 @@ public class FolderController extends BaseController {
                         addFolder2Zip(filePath, folder, zipOut);
                     } else if(media == null && folder == null) {
                         Logger.debug("Selection[" + s + "] failed");
-                        fehlercode = "Achtung, eine/mehrere der gewähten Dateien bzw. Order wurde in der Zwischenzeit gelöscht !! Treffen Sie bitte eine neue Auswahl.";
+                        fehlercode = "Achtung, eine/mehrere der gewählten Dateien bzw. Ordner wurden in der Zwischenzeit gelöscht !! Triff bitte eine neue Auswahl.";
                         }
                     }
                 zipOut.flush();
