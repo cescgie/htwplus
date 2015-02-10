@@ -46,35 +46,41 @@ public class FolderController extends BaseController {
     public static Result createFolder(Long groupID, Long parentID) {
         Folder parent = Folder.findById(parentID);
         Group group = Group.findById(groupID);
+        Folder groupFolder = getGroupFolder(group);
         Form<Folder> filledForm = folderForm.bindFromRequest();
         String name = filledForm.data().get("name");
-        if (!name.isEmpty()) {
-            if (Secured.isMemberOfGroup(group, Component.currentAccount()) && groupID.equals(parent.group.id)) {
-                if (allowToCreate(name, parent)) {
-                    Folder folder = new Folder();
-                    folder.name = name;
-                    folder.group = parent.group;
-                    folder.parent = parent;
-                    folder.depth = parent.depth + 1;
-                    folder.owner = Component.currentAccount();
-                    folder.create();
-                } else {
-                    if (name.length() > MAX_NAME_LENGTH) {
-                        flash("error", "Der eingegebene Ordnername ist zu lang (max. 30 Zeichen)");
+        if (parent != null) {
+            if (!name.isEmpty()) {
+                if (Secured.isMemberOfGroup(group, Component.currentAccount()) && groupID.equals(parent.group.id)) {
+                    if (allowToCreate(name, parent)) {
+                        Folder folder = new Folder();
+                        folder.name = name;
+                        folder.group = parent.group;
+                        folder.parent = parent;
+                        folder.depth = parent.depth + 1;
+                        folder.owner = Component.currentAccount();
+                        folder.create();
                     } else {
-                        flash("error", "Ein Ordner mit diesem Namen existiert bereits!");
+                        if (name.length() > MAX_NAME_LENGTH) {
+                            flash("error", "Der eingegebene Ordnername ist zu lang (max. 30 Zeichen)");
+                        } else {
+                            flash("error", "Ein Ordner mit diesem Namen existiert bereits!");
+                        }
+                        return redirectFolder(groupID, parentID);
                     }
-                    return redirectFolder(groupID, parentID);
+                    flash("success", "Der Ordner \"" + name + "\" wurde erfolgreich angelegt");
+                    return redirectFolder(parent.group.id, parentID);
+                } else {
+                    flash("error", "Dazu hast du keine Berechtigung!");
+                    return redirect(controllers.routes.Application.index());
                 }
-                flash("success", "Der Ordner \"" + name + "\" wurde erfolgreich angelegt");
-                return redirectFolder(parent.group.id, parentID);
             } else {
-                flash("error", "Dazu hast du keine Berechtigung!");
-                return redirect(controllers.routes.Application.index());
+                flash("error", "Du musst dem Ordner einen Namen geben!");
+                return redirectFolder(parent.group.id, parentID);
             }
         } else {
-            flash("error", "Du musst dem Ordner einen Namen geben!");
-            return redirectFolder(parent.group.id, parentID);
+            flash("error", "Der Ordner, auf den Sie zugreifen wollen, existiert nicht mehr!");
+            return redirect(controllers.routes.FolderController.listFolder(group.id, groupFolder.id));
         }
     }
 
@@ -83,7 +89,7 @@ public class FolderController extends BaseController {
         Group group = Group.findById(groupID);
         Folder folder = Folder.findById(folderID);
         Folder groupFolder = getGroupFolder(group);
-        if(folder != null) {
+        if (folder != null) {
             if (Secured.renameFolder(folder)) {
                 String oldName = folder.name;
                 Form<Folder> filledForm = folderForm.bindFromRequest();
@@ -105,7 +111,7 @@ public class FolderController extends BaseController {
                 return redirect(controllers.routes.Application.index());
             }
         } else {
-            flash("error", "Den Ordner gibt es nicht mehr!");
+            flash("error", "Der Ordner, auf den Sie zugreifen wollen, existiert nicht mehr!");
             return redirect(controllers.routes.FolderController.listFolder(group.id, groupFolder.id));
         }
     }
@@ -116,16 +122,27 @@ public class FolderController extends BaseController {
         Folder folder = Folder.findById(folderID);
         Group group = Group.findById(groupID);
         Folder groupFolder = getGroupFolder(group);
-        if (Secured.viewFolder(folder) && groupID.equals(folder.group.id)) {
-            List<Folder> path = getPathOfThisFolder(folder);
-            Logger.debug("show Folder with ID:" + folderID);
-            Navigation.set(Navigation.Level.GROUPS, "Media", groupFolder.group.title, controllers.routes.GroupController.view(groupFolder.group.id, PAGE));
-            return ok(views.html.Folder.viewFolder.render(path, folder, folderForm, mediaForm));
+
+        if (Secured.viewFolder(groupFolder) && groupID.equals(groupFolder.group.id)) {
+
+            if (Secured.viewFolder(folder) && groupID.equals(folder.group.id)) {
+                List<Folder> path = getPathOfThisFolder(folder);
+                Logger.debug("show Folder with ID:" + folderID);
+                Navigation.set(Navigation.Level.GROUPS, "Media", groupFolder.group.title, controllers.routes.GroupController.view(groupFolder.group.id, PAGE));
+                return ok(views.html.Folder.viewFolder.render(path, folder, folderForm, mediaForm));
+            } else {
+                Logger.debug("show Group-Folder with ID:" + folderID);
+                flash("error", "Der Ordner, auf den Sie zugreifen wollen, existiert nicht mehr!");
+                return redirect(controllers.routes.FolderController.listFolder(group.id, groupFolder.id));
+            }
+
         } else {
+            Logger.debug("show Index()");
             flash("error", "Für den Zugang zu diesem Ordner hast du keine Berechtigung!");
             return redirect(controllers.routes.Application.index());
         }
     }
+
 
     @Transactional
     public static Result deleteFolder(Long groupID,Long folderID) {
@@ -145,7 +162,7 @@ public class FolderController extends BaseController {
             flash("success", "Der Ordner \"" + folder.name + "\" wurde erfolgreich gelöscht");
             return redirect(controllers.routes.FolderController.listFolder(groupID, parent.id));
         } else {
-            flash("error", "Den Ordner gibt es nicht mehr!");
+            flash("error", "Der Ordner, auf den Sie zugreifen wollen, existiert nicht mehr!");
             return redirect(controllers.routes.FolderController.listFolder(group.id, groupFolder.id));
         }
     }
@@ -204,7 +221,7 @@ public class FolderController extends BaseController {
                 Logger.debug("return ok(file)");
                 return ok(file);
             } else {
-                flash("error", "Den Ordner gibt es nicht mehr!");
+                flash("error", "Der Ordner, auf den Sie zugreifen wollen, existiert nicht mehr!");
                 return redirect(controllers.routes.FolderController.listFolder(group.id, groupFolder.id));
             }
         } else {
