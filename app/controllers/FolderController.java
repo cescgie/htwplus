@@ -41,7 +41,18 @@ public class FolderController extends BaseController {
     private static final int MAX_NAME_LENGTH = 30;
     final static int PAGE = 1;
 
+/*
+    Creates a folder and returns a Result
 
+    @param groupID The Group ID
+    @param parentId The folders parent Folder ID
+
+    @return redirectFolder Result, consisting of the groupID and the parentID<br>
+            redirect to the index page, if access is not allowed <br>
+            redirect to the current folders parent folder if no folder name was delivered <br>
+            redirect to the current folders parent folder if the deserved folder doesnt exist <br>
+
+    **/
     @Transactional
     public static Result createFolder(Long groupID, Long parentID) {
         Folder parent = Folder.findById(parentID);
@@ -83,7 +94,14 @@ public class FolderController extends BaseController {
             return redirect(controllers.routes.FolderController.listFolder(group.id, groupFolder.id));
         }
     }
-
+    /*
+    * Renames a Folder
+    * @param argName the delivered Name
+    * @param folder the delivered Folder
+    * @return listFolder Result, consisting of the parent folders group id an the parent folders id<br>
+              redirect to the index page, if access is not allowed <br>
+              redirect to the current folders parent folder if the deserved folder doesnt exist 
+    * **/
     @Transactional
     public static Result renameFolder(Long groupID, Long folderID) {
         Group group = Group.findById(groupID);
@@ -115,7 +133,17 @@ public class FolderController extends BaseController {
             return redirect(controllers.routes.FolderController.listFolder(group.id, groupFolder.id));
         }
     }
-
+     /*
+    * Lists existing Folders
+    *
+    * @param groupID the groupID
+    * @param folderID the folderID
+    *
+    * @return ok Result, invoking a rendered view if access allowed <br>
+    *         Redirects to the Index Page if access isn't allowed
+    *
+    *
+    **/
     @Transactional
     public static Result listFolder(Long groupID, Long folderID) {
         Form<Media> mediaForm = Form.form(Media.class);
@@ -143,7 +171,13 @@ public class FolderController extends BaseController {
         }
     }
 
-
+    /*
+    Deletes a certain folder
+    @param groupID the groupID
+    @param folderID the folderID
+    @return redirect Result, redirecting to the current folder <br>
+            Redirects to the current folders parent folder because it is impossible to access a deletet folder
+    **/
     @Transactional
     public static Result deleteFolder(Long groupID,Long folderID) {
         Logger.debug("use deleteFolder");
@@ -166,7 +200,11 @@ public class FolderController extends BaseController {
             return redirect(controllers.routes.FolderController.listFolder(group.id, groupFolder.id));
         }
     }
-
+    /*
+    Creates a GroupFolder (as a first child in tree hirarchy of the root folder)
+    @param group the delivered group
+    @return the groups "root" folder
+    **/
     @Transactional
     public static Folder createGroupFolder(Group group) {
         Folder rootFolder = getRootFolder();
@@ -184,7 +222,11 @@ public class FolderController extends BaseController {
         }
         return groupFolder;
     }
-
+    /*
+    Creates and returns a groop folder folder if none exists
+    @param group the group for which a folder shall be created
+    @return a group folder
+    **/
     @Transactional
     public static Folder getGroupFolder(Group group) {
         Folder groupFolder = null;
@@ -198,7 +240,14 @@ public class FolderController extends BaseController {
         }
         return groupFolder;
     }
-
+    /*
+    Provides the possibility to download a folder with its contents
+    @param groupID the groupID
+    @param folderID the folderID
+    @return the zipped file, <br>
+            redirect to the current folders parent folder if the deserved folder doesnt exist <br>
+            redirect to the index page if access is not allowed
+    */
     @Transactional(readOnly=true)
     public static Result singleDownload(Long groupID, Long folderID) throws IOException {
         Logger.debug("use multiView");
@@ -229,7 +278,18 @@ public class FolderController extends BaseController {
             return redirect(controllers.routes.Application.index());
         }
     }
+    /*
 
+    
+    Provides the possibility to download selected files and/or folders (with its contents)
+    @param groupID the groupID
+    @param folderID the folderID
+    @return the zipped file, <br>
+            redirect to the current folders parent folder <br>
+            if one of the selected folders is empty or not a single file has been selected<br>
+            redirect to the index page if access is not allowed
+    
+    */
     @Transactional(readOnly=true)
     public static Result multiView(Long groupID, Long folderID) throws IOException {
 
@@ -292,11 +352,22 @@ public class FolderController extends BaseController {
             return redirect(controllers.routes.Application.index());
         }
     }
+    /*
+    Redirects to the current folders parent folder
+    @param groupID the groupID
+    @param folderID the folderID
+    @return redirect to the current folders parent folder <br>
 
+    */
     public static Result redirectFolder(Long groupID, Long folderID) {
         return redirect("/group/" + groupID + "/folder/" + folderID);
     }
-
+    /*
+    Checks whether there is content in a folder 
+    @param m the Media
+    @param f the Folder
+    @return true, if content exists, false if not
+    */
     public static boolean mediaExistInFolder(Media m, Folder f) {
         boolean exist = false;
         List<Media> mediaList = f.files;
@@ -306,7 +377,12 @@ public class FolderController extends BaseController {
         }
         return exist;
     }
-
+    /*
+    Adds a file to the delivered ZipOutputstream
+    @param media the delivered media
+    @param filePath the delivered file path
+    @param zipOut the delivered Zip Output Stream
+    */
     private static void addFile2Zip(Media media, String filePath, ZipOutputStream zipOut) throws IOException{
         Logger.debug("add Filename: " + media.file.getName());
         byte[] buffer = new byte[4092];
@@ -320,7 +396,13 @@ public class FolderController extends BaseController {
         fis.close();
         zipOut.closeEntry();
     }
-
+    /*
+    Adds a folder to the delivered ZipOutputstream
+    
+    @param filePath the delivered file path
+    @param folder the delivered folder
+    @param zipOut the delivered Zip Output Stream
+    */
     private static void addFolder2Zip(String filePath, Folder folder, ZipOutputStream zipOut) throws IOException{
         Logger.debug("add Folder: " + folder.name);
         filePath = filePath + folder.name + "/";
@@ -340,7 +422,11 @@ public class FolderController extends BaseController {
             }
         }
     }
-
+    /*
+    Returns the path of the delivered folder
+    @param folder the delivered folder
+    @return the path of the delivered folder
+    */
     private static List<Folder> getPathOfThisFolder(Folder folder) {
         List<Folder> pathTemp = new ArrayList<Folder>();
         List<Folder> path = new ArrayList<Folder>();
@@ -353,7 +439,12 @@ public class FolderController extends BaseController {
         }
         return path;
     }
-
+    /*
+    Checks whether it is allowed to create a folder
+    @param argName the delivered name (which the new folder should get)
+    @param parent the folders parent folder
+    @return true if its allowed to create a folder, false if not
+    */
     private static boolean allowToCreate(String argName, Folder parent) {
         boolean allow = false;
         if (argName.length() <= MAX_NAME_LENGTH && parent.depth < DEPTH) {
@@ -369,7 +460,10 @@ public class FolderController extends BaseController {
         return allow;
     }
 
-
+    /*
+    Deletes the delivered folders content
+    @param folder the delivered folder
+    */
     private static void deleteFolderContent(Folder folder){
         for (Media m: folder.files) {
             m.delete();
@@ -379,7 +473,10 @@ public class FolderController extends BaseController {
         }
         folder.delete();
     }
-
+    /*
+    Creates a root folder
+    @return the root folder
+    */
     private static Folder getRootFolder() {
         Folder rootFolder = null;
         try {
