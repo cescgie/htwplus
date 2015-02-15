@@ -1,5 +1,6 @@
 package controllers;
 
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -29,6 +30,8 @@ import play.mvc.Http.MultipartFormData.FilePart;
 import play.mvc.Result;
 import play.mvc.Security;
 
+import views.html.snippets.videoviewer;
+
 @Security.Authenticated(Secured.class)
 public class MediaController extends BaseController {
 	
@@ -46,12 +49,24 @@ public class MediaController extends BaseController {
 				if (keyword.equals("download")) {
 					response().setHeader("Content-disposition", "attachment; filename=\"" + media.fileName + "\"");
 				}
-				else {
-                    Logger.info("andere Datei erkannt");
+				//need to show video in videoviewer snippet
+				else if (keyword.equals("viewvideo")) {
+					Logger.info("Show video view");
 					response().setHeader("Content-disposition", "inline; filename=\"" + media.fileName + "\"");
 				}
+				else if (keyword.equals("view")) {
+					if (media.mimetype.endsWith("mp4")) {
+						//todo, cant remember the exact response or ok code
+						Logger.info("mp4 found, go to Snippet");
+						return ok(videoviewer.render(media));
+					}
+					else {
+						Logger.info("Show normal view");
+						response().setHeader("Content-disposition", "inline; filename=\"" + media.fileName + "\"");
+					}
 
-				Logger.info("file = " + media.title + " type = " + media.mimetype);
+				}
+
 				Logger.debug("return ok(media.file)");
 				return ok(media.file);
 			}
@@ -62,15 +77,13 @@ public class MediaController extends BaseController {
     }
 
 
+	//Geändert von setPDFVewer zu setPrefix für zukünftige Prefix-Settings
 	public static String setPrefix(Long id) {
 		Media m = Media.findById(id);
-		String prefix;
+		String prefix = "";
 
 		if (m.mimetype.endsWith("pdf")) {
 			prefix = "/assets/pdfjs/viewer.html?file=";
-		}
-		else {
-			prefix = "";
 		}
 
 		return prefix;
@@ -78,13 +91,14 @@ public class MediaController extends BaseController {
 
 	public static String addColorboxClass(Long id) {
 		Media m = Media.findById(id);
-		String classString;
+		String classString = "";
 		if (m.mimetype.startsWith("image")) {
 			classString = "colorboxImage";
 		}
-		else {
-			classString = "";
+		else if (m.mimetype.endsWith("mp4")) {
+			classString = "colorboxInlineVideo";
 		}
+
 		return classString;
 	}
 
