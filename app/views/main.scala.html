@@ -93,10 +93,11 @@
 
 
         <script type="text/javascript">
-			var dheight = $(document).height() - 60;
             $(".colorboxImage").colorbox({rel:'colorboxImage', photo:true});
-			$(".colorboxInlineVideo").colorbox({innerHeight: dheight ,rel:"nofollow", onComplete : function() {
-				$(this).colorbox.resize();
+			$(".colorboxInlineVideo").colorbox({rel:"nofollow", onComplete : function() {
+				$(this).colorbox.resize({initialWidth: 500, initialHeight: 200});
+				var filew = document.getElementById("mediafileplayer").clientWidth;
+				//alert("Videoelement Weite = " + filew);
 			}});
             $(".youtube").colorbox({iframe:true, innerWidth:640, innerHeight:390});
             $(".vimeo").colorbox({iframe:true, innerWidth:500, innerHeight:409});
@@ -112,7 +113,7 @@
 				if (resizeTimer) clearTimeout(resizeTimer);
 					resizeTimer = setTimeout(function() {
 					if ($('#cboxOverlay').is(':visible')) {
-						$.colorbox.resize({width:"90%", height:"90%"});
+						$.colorbox.reload();
 					}
 				}, 300)
 			});

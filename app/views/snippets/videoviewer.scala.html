@@ -1,8 +1,8 @@
 @(m: Media)
  <div style="display: block">
         <div id="inlinevideocontent" align="center">
-            <video controls="controls" autoplay="autoplay" name="media">
-                <source src="http://localhost:9000/media/@m.id/videoview" type="@m.mimetype">
+            <video controls="controls" name="media" id ="mediafileplayer">
+                <source src="/media/@m.id/videoview" type="@m.mimetype">
                 Dein Browser unterstützt nicht das HTML 5 Video Tag
             </video>
         </div>

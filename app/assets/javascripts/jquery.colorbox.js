@@ -1085,6 +1085,10 @@
 		return $(settings.el);
 	};
 
+	publicMethod.reload = function () {
+		load();
+	}
+
 	publicMethod.settings = defaults;
 
 }(jQuery, document, window));

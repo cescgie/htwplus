@@ -51,17 +51,17 @@ public class MediaController extends BaseController {
 				}
 				//need to show video in videoviewer snippet
 				else if (keyword.equals("viewvideo")) {
-					Logger.info("Show video view");
+					Logger.info("show video view");
 					response().setHeader("Content-disposition", "inline; filename=\"" + media.fileName + "\"");
 				}
 				else if (keyword.equals("view")) {
-					if (media.mimetype.endsWith("mp4")) {
+					if (media.mimetype.endsWith("mp4") || media.mimetype.endsWith("webm") || media.mimetype.endsWith("ogg")) {
 						//todo, cant remember the exact response or ok code
-						Logger.info("mp4 found, go to Snippet");
+						Logger.info("html 5 supported video format found, go to snippet");
 						return ok(videoviewer.render(media));
 					}
 					else {
-						Logger.info("Show normal view");
+						Logger.info("show normal view");
 						response().setHeader("Content-disposition", "inline; filename=\"" + media.fileName + "\"");
 					}
 
@@ -95,7 +95,7 @@ public class MediaController extends BaseController {
 		if (m.mimetype.startsWith("image")) {
 			classString = "colorboxImage";
 		}
-		else if (m.mimetype.endsWith("mp4")) {
+		else if (m.mimetype.endsWith("mp4") || m.mimetype.endsWith("webm") || m.mimetype.endsWith("ogg")) {
 			classString = "colorboxInlineVideo";
 		}
 

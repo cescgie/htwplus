@@ -14,10 +14,10 @@
     height:auto !important;
 }
 #cboxContent video, #cboxContent .video-js-box {
-    max-height: 100% !important;
     max-width: 100% !important;
-    width:auto !important;
-    height:auto !important;
+    max-height: 100% !important;
+    height: auto !important;
+    width: auto !important;
 }
 #colorbox, #cboxOverlay, #cboxWrapper {
     overflow:visible !important;
