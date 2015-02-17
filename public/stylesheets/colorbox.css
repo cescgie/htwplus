@@ -13,12 +13,47 @@
     width:auto !important;
     height:auto !important;
 }
-#cboxContent video, #cboxContent .video-js-box {
-    max-width: 100% !important;
-    max-height: 100% !important;
-    height: auto !important;
-    width: auto !important;
+@media (min-width: 1200px) {
+    #cboxContent video, #cboxContent .video-js-box {
+        max-width: 100% !important;
+        max-height: 100% !important;
+        height: auto !important;
+        width: auto !important;
+        min-width: 800px !important;
+        overflow-x: hidden !important;
+    }
 }
+@media (min-width: 950px) and (max-width: 1200px) {
+    #cboxContent video, #cboxContent .video-js-box {
+        max-width: 100% !important;
+        max-height: 100% !important;
+        height: auto !important;
+        width: auto !important;
+        min-width: 600px !important;
+        overflow-x: hidden !important;
+    }
+}
+@media (min-width: 450px) and (max-width: 950px) {
+    #cboxContent video, #cboxContent .video-js-box {
+        max-width: 100% !important;
+        max-height: 100% !important;
+        height: auto !important;
+        width: auto !important;
+        min-width: 350px !important;
+        overflow-x: hidden !important;
+    }
+}
+@media (max-width: 450px) {
+    #cboxContent video, #cboxContent .video-js-box {
+        max-width: 100% !important;
+        max-height: 100% !important;
+        height: auto !important;
+        width: auto !important;
+        min-width: 200px !important;
+        overflow-x: hidden !important;
+    }
+}
+
 #colorbox, #cboxOverlay, #cboxWrapper {
     overflow:visible !important;
 }

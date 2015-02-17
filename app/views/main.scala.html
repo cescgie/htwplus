@@ -95,9 +95,9 @@
         <script type="text/javascript">
             $(".colorboxImage").colorbox({rel:'colorboxImage', photo:true});
 			$(".colorboxInlineVideo").colorbox({rel:"nofollow", onComplete : function() {
-				$(this).colorbox.resize({initialWidth: 500, initialHeight: 200});
 				var filew = document.getElementById("mediafileplayer").clientWidth;
-				//alert("Videoelement Weite = " + filew);
+				var fileh = document.getElementById("mediafileplayer").clientHeight;
+				$(this).colorbox.resize({innerWidth: filew});
 			}});
             $(".youtube").colorbox({iframe:true, innerWidth:640, innerHeight:390});
             $(".vimeo").colorbox({iframe:true, innerWidth:500, innerHeight:409});
