@@ -95,9 +95,9 @@
         <script type="text/javascript">
             $(".colorboxImage").colorbox({rel:'colorboxImage', photo:true});
 			$(".colorboxInlineVideo").colorbox({rel:"nofollow", onComplete : function() {
-				var filew = document.getElementById("mediafileplayer").clientWidth;
-				var fileh = document.getElementById("mediafileplayer").clientHeight;
-				$(this).colorbox.resize({innerWidth: filew});
+				var filew = document.getElementById("mediafileplayer").clientWidth + 20;
+				var fileh = document.getElementById("mediafileplayer").clientHeight + 20;
+				$.colorbox.resize({innerWidth: filew, innerHeight: fileh});
 			}});
             $(".youtube").colorbox({iframe:true, innerWidth:640, innerHeight:390});
             $(".vimeo").colorbox({iframe:true, innerWidth:500, innerHeight:409});
@@ -119,8 +119,9 @@
 			});
 
 			// Resize ColorBox when resizing window or changing mobile device orientation
-			jQuery(window).resize(resizeColorBox);
-			window.addEventListener("orientationchange", resizeColorBox, false);
+			// Augenscheinlich unnütz, da die Window.resize Funktion das auch übernimmt
+			//jQuery(window).resize(resizeColorBox);
+			//window.addEventListener("orientationchange", resizeColorBox, false);
 
 		</script>
 
