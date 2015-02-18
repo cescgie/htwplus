@@ -97,7 +97,6 @@
 			//Festlegen der Colorboxklassen + dazugehörige Attribute
             $(".colorboxImage").colorbox({rel:'colorboxImage', photo:true});
 			$(".colorboxInlineVideo").colorbox({scrolling: false, rel:"nofollow", onComplete : function() {
-				var vid = document.getElementById("mediafileplayer");
 				var filew = document.getElementById("mediafileplayer").clientWidth;
 				var fileh = document.getElementById("mediafileplayer").clientHeight;
 				$.colorbox.resize({innerWidth: filew, innerHeight: fileh + 20});
