@@ -93,11 +93,14 @@
 
 
         <script type="text/javascript">
+
+			//Festlegen der Colorboxklassen + dazugehörige Attribute
             $(".colorboxImage").colorbox({rel:'colorboxImage', photo:true});
-			$(".colorboxInlineVideo").colorbox({rel:"nofollow", onComplete : function() {
-				var filew = document.getElementById("mediafileplayer").clientWidth + 20;
-				var fileh = document.getElementById("mediafileplayer").clientHeight + 20;
-				$.colorbox.resize({innerWidth: filew, innerHeight: fileh});
+			$(".colorboxInlineVideo").colorbox({scrolling: false, rel:"nofollow", onComplete : function() {
+				var vid = document.getElementById("mediafileplayer");
+				var filew = document.getElementById("mediafileplayer").clientWidth;
+				var fileh = document.getElementById("mediafileplayer").clientHeight;
+				$.colorbox.resize({innerWidth: filew, innerHeight: fileh + 20});
 			}});
             $(".youtube").colorbox({iframe:true, innerWidth:640, innerHeight:390});
             $(".vimeo").colorbox({iframe:true, innerWidth:500, innerHeight:409});
@@ -113,6 +116,7 @@
 				if (resizeTimer) clearTimeout(resizeTimer);
 					resizeTimer = setTimeout(function() {
 					if ($('#cboxOverlay').is(':visible')) {
+						//reload ist selbst hinugefügt in colorbox.js, public func welche einfach nur load() aufruft
 						$.colorbox.reload();
 					}
 				}, 300)

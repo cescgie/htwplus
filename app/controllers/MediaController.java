@@ -37,7 +37,13 @@ public class MediaController extends BaseController {
 	
 	static Form<Media> mediaForm = Form.form(Media.class);
 	final static String tempPrefix = "htwplus_temp";
-	
+
+	/**
+	 * Function for a single media view
+	 * @param id Id of the media file for finding it
+	 * @param keyword The keyword for deciding what should be done with the file. Possible keywords in the moment (view, viewvideo, download)
+	 * @return Either the file with content-disposition inline or attachment depending on the given keyword or the rendered videosnippet
+	 */
     @Transactional(readOnly=true)	
     public static Result view(Long id, String keyword) {
     	Media media = Media.findById(id);
@@ -49,19 +55,16 @@ public class MediaController extends BaseController {
 				if (keyword.equals("download")) {
 					response().setHeader("Content-disposition", "attachment; filename=\"" + media.fileName + "\"");
 				}
-				//need to show video in videoviewer snippet
+				//Weiteres Keyword war nötig, da ich mich sonst mit dem Videosnippet ständig im Kreis gedreht hätte bei dieser Herangehensweise
 				else if (keyword.equals("viewvideo")) {
-					Logger.info("show video view");
 					response().setHeader("Content-disposition", "inline; filename=\"" + media.fileName + "\"");
 				}
 				else if (keyword.equals("view")) {
+					//Wenn HTML5 unterstütztes Videoformat, wird Videosnippet gerendert, welches view func mit viewvideo keyword aufruft
 					if (media.mimetype.endsWith("mp4") || media.mimetype.endsWith("webm") || media.mimetype.endsWith("ogg")) {
-						//todo, cant remember the exact response or ok code
-						Logger.info("html 5 supported video format found, go to snippet");
 						return ok(videoviewer.render(media));
 					}
 					else {
-						Logger.info("show normal view");
 						response().setHeader("Content-disposition", "inline; filename=\"" + media.fileName + "\"");
 					}
 
@@ -78,6 +81,11 @@ public class MediaController extends BaseController {
 
 
 	//Geändert von setPDFVewer zu setPrefix für zukünftige Prefix-Settings
+	/**
+	 * Function for setting prefix if it is needed
+	 * @param id Id of the media file for finding it
+	 * @return The found prefix
+	 */
 	public static String setPrefix(Long id) {
 		Media m = Media.findById(id);
 		String prefix = "";
@@ -89,6 +97,11 @@ public class MediaController extends BaseController {
 		return prefix;
 	}
 
+	/**
+	 * Function for setting the right Colorbox class so the file can be displayed nicely
+	 * @param id Id of the media file for finding it
+	 * @return The correct class for Colorbox depending on the mimetype
+	 */
 	public static String addColorboxClass(Long id) {
 		Media m = Media.findById(id);
 		String classString = "";
@@ -102,6 +115,11 @@ public class MediaController extends BaseController {
 		return classString;
 	}
 
+	/**
+	 * Function for setting the right glyphicon via bootstrap
+	 * @param id Id of the media file for finding it
+	 * @return The string for the correct glyphicon
+	 */
 	public static String glyph(Long id){
 		Media m = Media.findById(id);
 		String glyphicon = "glyphicon-file";

@@ -7,6 +7,8 @@
 #cboxOverlay{position:fixed; width:100%; height:100%;}
 #cboxMiddleLeft, #cboxBottomLeft{clear:left;}
 #cboxContent{position:relative;}
+
+/* Beginn eigener Styleklassen */
 #cboxContent img {
     max-width:100% !important;
     max-height:100% !important;
@@ -49,6 +51,8 @@
 #colorbox, #cboxOverlay, #cboxWrapper {
     overflow:visible !important;
 }
+/* Ende eigener Styleklassen */
+
 #cboxLoadedContent{overflow:auto; -webkit-overflow-scrolling: touch;}
 #cboxTitle{margin:0;}
 #cboxLoadingOverlay, #cboxLoadingGraphic{position:absolute; top:0; left:0; width:100%; height:100%;}

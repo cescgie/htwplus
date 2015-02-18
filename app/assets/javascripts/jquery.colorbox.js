@@ -58,6 +58,7 @@
 		retinaSuffix: '@2x.$1',
 
 		// internationalization
+		// Wurde von mir eingedeutscht, muss wohl bei Aktualisierung der Colorbox Files neu gemacht werden
 		current: "Bild {current} von {total}",
 		previous: "Vorheriges",
 		next: "Nächstes",
@@ -1085,6 +1086,7 @@
 		return $(settings.el);
 	};
 
+	//Selbst hinzugefügt um auf die private load func zugreifen zu können
 	publicMethod.reload = function () {
 		load();
 	}
